@@ -2,6 +2,7 @@
 ## Eclipse
 #################
 
+AutoSwitch/gen/*
 *.pydevproject
 .project
 .metadata
