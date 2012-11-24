@@ -3,12 +3,15 @@ package com.powervv.autoswitch;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-//import android.widget.TimePicker;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.app.TimePickerDialog;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-//import android.app.TimePickerDialog;
 import android.content.Intent;
 import java.util.Calendar;
 import android.util.Log;
@@ -27,7 +30,10 @@ public class AutoSwitchActivity extends Activity {
 	CheckBox	m_CheckBox3;
 	CheckBox	m_CheckBox4;
 	CheckBox	m_CheckBox5;
-	CheckBox	m_CheckBox6;	
+	CheckBox	m_CheckBox6;
+	
+	TableRow	m_TableRow2;
+	TextView 	m_TextView3;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,10 @@ public class AutoSwitchActivity extends Activity {
 		m_CheckBox4 = (CheckBox) findViewById(R.id.checkBox4);
 		m_CheckBox5 = (CheckBox) findViewById(R.id.checkBox5);
 		m_CheckBox6 = (CheckBox) findViewById(R.id.checkBox6);	
+		
+		m_TableRow2 = (TableRow) findViewById(R.id.tableRow2);
+		m_TextView3 = (TextView) findViewById(R.id.textView3);
+		
 		// 初始化wifi、mobile状态数组
 		aWifiState 		= new boolean[3];
 		aMobileState 	= new boolean[3];
@@ -100,7 +110,30 @@ public class AutoSwitchActivity extends Activity {
 		        setSwitchRule();
 			}
 		});
-			
+		
+		m_TableRow2.setOnClickListener(new View.OnClickListener()
+	    {
+	      public void onClick(View v)
+	      {
+	    	Calendar calendar = Calendar.getInstance();
+	    	calendar.setTimeInMillis(System.currentTimeMillis());
+	        int mHour=calendar.get(Calendar.HOUR_OF_DAY);
+	        int mMinute=calendar.get(Calendar.MINUTE);
+	        new TimePickerDialog(AutoSwitchActivity.this,
+	          new TimePickerDialog.OnTimeSetListener()
+	          {                
+	            public void onTimeSet(TimePicker view,int hourOfDay,int minute)
+	            {
+	            	aHour[0] 	= hourOfDay;
+	            	aMinute[0] 	= minute;
+	            	m_TextView3.setText(aHour[0] + ":" + aMinute[0]);
+	    	        setSwitchRule();
+	            }          
+	          },mHour,mMinute,true).show();
+	        
+	      }
+	    });		
+		
 		// 创建日历实例
         aCalendar = new Calendar[3];
         int len = aCalendar.length;
