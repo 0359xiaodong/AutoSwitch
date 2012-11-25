@@ -128,8 +128,6 @@ public class AutoSwitchActivity extends Activity {
 		
 		m_TableRow2.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				// Calendar calendar = Calendar.getInstance();
-				// calendar.setTimeInMillis(System.currentTimeMillis());
 				Calendar calendar = aCalendar[0];
 				int mHour = calendar.get(Calendar.HOUR_OF_DAY);
 				int mMinute = calendar.get(Calendar.MINUTE);
@@ -152,8 +150,6 @@ public class AutoSwitchActivity extends Activity {
 		
 		m_TableRow3.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				// Calendar calendar = Calendar.getInstance();
-				// calendar.setTimeInMillis(System.currentTimeMillis());
 				Calendar calendar = aCalendar[1];
 				int mHour = calendar.get(Calendar.HOUR_OF_DAY);
 				int mMinute = calendar.get(Calendar.MINUTE);
@@ -176,8 +172,6 @@ public class AutoSwitchActivity extends Activity {
 		
 		m_TableRow4.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				// Calendar calendar = Calendar.getInstance();
-				// calendar.setTimeInMillis(System.currentTimeMillis());
 				Calendar calendar = aCalendar[2];
 				int mHour = calendar.get(Calendar.HOUR_OF_DAY);
 				int mMinute = calendar.get(Calendar.MINUTE);
@@ -242,13 +236,11 @@ public class AutoSwitchActivity extends Activity {
         intent.putExtra("wifi", aWifiState[i]);
         intent.putExtra("mobile", aMobileState[i]);
 
-        PendingIntent pendingIntent=PendingIntent.getBroadcast(AutoSwitchActivity.this, i, intent,  PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(AutoSwitchActivity.this, i, intent,  PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am;
         /* 获取闹钟管理的实例 */
         am = (AlarmManager)getSystemService(ALARM_SERVICE);
-        /* 设置闹钟 */
-        // am.set(AlarmManager.RTC_WAKEUP, aCalendar[i].getTimeInMillis(), pendingIntent);
-        /* 设置周期闹 */
+        /* 设置闹钟 周期闹 */
         am.setRepeating(AlarmManager.RTC_WAKEUP, aCalendar[i].getTimeInMillis(), (24*60*60*1000), pendingIntent);     	
     }
     
@@ -256,7 +248,7 @@ public class AutoSwitchActivity extends Activity {
 	{
 		if (keyCode == KeyEvent.KEYCODE_BACK)
 		{
-			/* 这里我们在推出应用程序时保存数据 */
+			/* 这里我们在退出应用程序时保存数据 */
 			save();
 
 			this.finish();
