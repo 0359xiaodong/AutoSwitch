@@ -33,8 +33,24 @@ public class AutoSwitchActivity extends Activity {
 	CheckBox	m_CheckBox6;
 	
 	TableRow	m_TableRow2;
+	TableRow	m_TableRow3;
+	TableRow	m_TableRow4;	
 	TextView 	m_TextView3;
+	TextView 	m_TextView4;
+	TextView 	m_TextView5;	
 	
+    static public String padLeft(String oriStr,int len,char alexin){
+    	String str = new String();  
+    	int strlen = oriStr.length();
+    	  if(strlen < len){
+    	   for(int i=0;i<len-strlen;i++){
+    	    str = str+alexin;
+    	   }
+    	  }
+    	  str += oriStr;
+    	  return str;
+    }
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +65,11 @@ public class AutoSwitchActivity extends Activity {
 		m_CheckBox6 = (CheckBox) findViewById(R.id.checkBox6);	
 		
 		m_TableRow2 = (TableRow) findViewById(R.id.tableRow2);
+		m_TableRow3 = (TableRow) findViewById(R.id.tableRow3);
+		m_TableRow4 = (TableRow) findViewById(R.id.tableRow4);		
 		m_TextView3 = (TextView) findViewById(R.id.textView3);
+		m_TextView4 = (TextView) findViewById(R.id.textView4);
+		m_TextView5 = (TextView) findViewById(R.id.textView5);
 		
 		// 初始化wifi、mobile状态数组
 		aWifiState 		= new boolean[3];
@@ -126,13 +146,60 @@ public class AutoSwitchActivity extends Activity {
 	            {
 	            	aHour[0] 	= hourOfDay;
 	            	aMinute[0] 	= minute;
-	            	m_TextView3.setText(aHour[0] + ":" + aMinute[0]);
+	            	m_TextView3.setText(AutoSwitchActivity.padLeft(String.valueOf(aHour[0]), 2, '0') + ":" + AutoSwitchActivity.padLeft(String.valueOf(aMinute[0]), 2, '0'));
+	            	
 	    	        setSwitchRule();
 	            }          
 	          },mHour,mMinute,true).show();
 	        
 	      }
 	    });		
+		
+		m_TableRow3.setOnClickListener(new View.OnClickListener()
+	    {
+	      public void onClick(View v)
+	      {
+	    	Calendar calendar = Calendar.getInstance();
+	    	calendar.setTimeInMillis(System.currentTimeMillis());
+	        int mHour=calendar.get(Calendar.HOUR_OF_DAY);
+	        int mMinute=calendar.get(Calendar.MINUTE);
+	        new TimePickerDialog(AutoSwitchActivity.this,
+	          new TimePickerDialog.OnTimeSetListener()
+	          {                
+	            public void onTimeSet(TimePicker view,int hourOfDay,int minute)
+	            {
+	            	aHour[1] 	= hourOfDay;
+	            	aMinute[1] 	= minute;
+	            	m_TextView4.setText(AutoSwitchActivity.padLeft(String.valueOf(aHour[1]), 2, '0') + ":" + AutoSwitchActivity.padLeft(String.valueOf(aMinute[1]), 2, '0'));
+	            	setSwitchRule();
+	            }          
+	          },mHour,mMinute,true).show();
+	        
+	      }
+	    });	
+		
+		m_TableRow4.setOnClickListener(new View.OnClickListener()
+	    {
+	      public void onClick(View v)
+	      {
+	    	Calendar calendar = Calendar.getInstance();
+	    	calendar.setTimeInMillis(System.currentTimeMillis());
+	        int mHour=calendar.get(Calendar.HOUR_OF_DAY);
+	        int mMinute=calendar.get(Calendar.MINUTE);
+	        new TimePickerDialog(AutoSwitchActivity.this,
+	          new TimePickerDialog.OnTimeSetListener()
+	          {                
+	            public void onTimeSet(TimePicker view,int hourOfDay,int minute)
+	            {
+	            	aHour[2] 	= hourOfDay;
+	            	aMinute[2] 	= minute;
+	            	m_TextView5.setText(AutoSwitchActivity.padLeft(String.valueOf(aHour[2]), 2, '0') + ":" + AutoSwitchActivity.padLeft(String.valueOf(aMinute[2]), 2, '0'));
+	    	        setSwitchRule();
+	            }          
+	          },mHour,mMinute,true).show();
+	        
+	      }
+	    });	
 		
 		// 创建日历实例
         aCalendar = new Calendar[3];
@@ -179,4 +246,6 @@ public class AutoSwitchActivity extends Activity {
             am.setRepeating(AlarmManager.RTC_WAKEUP, aCalendar[i].getTimeInMillis(), (24*60*60*1000), pendingIntent);            	
         }
     }
+    
+
 }
