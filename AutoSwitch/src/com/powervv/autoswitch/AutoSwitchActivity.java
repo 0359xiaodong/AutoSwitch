@@ -38,19 +38,7 @@ public class AutoSwitchActivity extends Activity {
 	TextView 	m_TextView3;
 	TextView 	m_TextView4;
 	TextView 	m_TextView5;	
-	
-    static public String padLeft(String oriStr,int len,char alexin){
-    	String str = new String();  
-    	int strlen = oriStr.length();
-    	  if(strlen < len){
-    	   for(int i=0;i<len-strlen;i++){
-    	    str = str+alexin;
-    	   }
-    	  }
-    	  str += oriStr;
-    	  return str;
-    }
-    
+	   
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,8 +134,7 @@ public class AutoSwitchActivity extends Activity {
 	            {
 	            	aHour[0] 	= hourOfDay;
 	            	aMinute[0] 	= minute;
-	            	m_TextView3.setText(AutoSwitchActivity.padLeft(String.valueOf(aHour[0]), 2, '0') + ":" + AutoSwitchActivity.padLeft(String.valueOf(aMinute[0]), 2, '0'));
-	            	
+	            	m_TextView3.setText(String.format("%02d", aHour[0]) + ":" + String.format("%02d", aMinute[0]));
 	    	        setSwitchRule();
 	            }          
 	          },mHour,mMinute,true).show();
@@ -170,7 +157,7 @@ public class AutoSwitchActivity extends Activity {
 	            {
 	            	aHour[1] 	= hourOfDay;
 	            	aMinute[1] 	= minute;
-	            	m_TextView4.setText(AutoSwitchActivity.padLeft(String.valueOf(aHour[1]), 2, '0') + ":" + AutoSwitchActivity.padLeft(String.valueOf(aMinute[1]), 2, '0'));
+	            	m_TextView4.setText(String.format("%02d", aHour[1]) + ":" + String.format("%02d", aMinute[1]));	            	
 	            	setSwitchRule();
 	            }          
 	          },mHour,mMinute,true).show();
@@ -193,7 +180,7 @@ public class AutoSwitchActivity extends Activity {
 	            {
 	            	aHour[2] 	= hourOfDay;
 	            	aMinute[2] 	= minute;
-	            	m_TextView5.setText(AutoSwitchActivity.padLeft(String.valueOf(aHour[2]), 2, '0') + ":" + AutoSwitchActivity.padLeft(String.valueOf(aMinute[2]), 2, '0'));
+	            	m_TextView5.setText(String.format("%02d", aHour[2]) + ":" + String.format("%02d", aMinute[2]));	   	            	
 	    	        setSwitchRule();
 	            }          
 	          },mHour,mMinute,true).show();
