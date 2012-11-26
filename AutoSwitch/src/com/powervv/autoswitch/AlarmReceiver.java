@@ -21,26 +21,40 @@ public class AlarmReceiver extends BroadcastReceiver
 		boolean bMobileEnable = bundle.getBoolean("mobile");
 		
 		Log.e(TAG, "alarm received! bWifi=" + bWifiEnable + " bMobile=" + bMobileEnable);
-		Toast.makeText(context, "你设置的闹钟时间到了", Toast.LENGTH_LONG).show();
+		Toast.makeText(context, "bWifi=" + bWifiEnable + " bMobile=" + bMobileEnable , Toast.LENGTH_LONG).show();
 		
 		WifiManager wifiManager= (WifiManager) context.getSystemService(Context.WIFI_SERVICE); 
-		//if (wifiManager.WIFI_STATE_DISABLED != wifiManager.getWifiState())
+		int wifiState = wifiManager.getWifiState();
+		switch(wifiState)
 		{
-			wifiManager.setWifiEnabled(bWifiEnable);			
+		case WifiManager.WIFI_STATE_DISABLED:
+		case WifiManager.WIFI_STATE_DISABLING:
+			if (bWifiEnable)
+				wifiManager.setWifiEnabled(bWifiEnable);
+			break;
+		case WifiManager.WIFI_STATE_ENABLED:
+		case WifiManager.WIFI_STATE_ENABLING:	
+			if (!bWifiEnable)
+				wifiManager.setWifiEnabled(bWifiEnable);
+			break;
+		default:
+			wifiManager.setWifiEnabled(bWifiEnable);
+			break;
 		}
 
 		mConnectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		Boolean bMobileDataEnable = false;
+		Boolean bMobileState = false;
 		try
 		{
 			Object[] arg = null;
-			bMobileDataEnable = (Boolean) invokeMethod("getMobileDataEnabled", arg);
+			bMobileState = (Boolean) invokeMethod("getMobileDataEnabled", arg);
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}		
 		
-		//if (bMobileDataEnable)
+		// 如果当前状态与要设置状态不一致
+		if ((bMobileState &&  !bMobileEnable) || (!bMobileState &&  bMobileEnable)) 
 		{
 			try
 			{
