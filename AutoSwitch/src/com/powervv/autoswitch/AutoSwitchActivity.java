@@ -23,7 +23,7 @@ public class AutoSwitchActivity extends Activity {
 	private static final String	TAG	= "AutoSwitch";
 	Calendar aCalendar[];
 	int aHour[] 	= 	{7, 19, 23}; // {22, 22, 22}; // 
-	int aMinute[] 	= 	{0, 0, 10}; // {52, 53, 54}; // 
+	int aMinute[] 	= 	{0, 0, 33}; // {52, 53, 54}; // 
 	boolean aWifiState[]; // = {false, true, false};
 	boolean aMobileState[]; // = {true, true, false};
 	
@@ -224,14 +224,20 @@ public class AutoSwitchActivity extends Activity {
     }
     
     private void setSwitchRule(int i) {
-        aCalendar[i].setTimeInMillis(System.currentTimeMillis());
-        String time = aCalendar[i].get(Calendar.HOUR_OF_DAY) + ":" + aCalendar[i].get(Calendar.MINUTE);
-    	Log.e(TAG, time);
+    	long curTime = System.currentTimeMillis();
+        aCalendar[i].setTimeInMillis(curTime);
+        //String time = aCalendar[i].get(Calendar.HOUR_OF_DAY) + ":" + aCalendar[i].get(Calendar.MINUTE);
+    	//Log.e(TAG, time);
         aCalendar[i].set(Calendar.HOUR_OF_DAY, aHour[i]);
         aCalendar[i].set(Calendar.MINUTE, aMinute[i]);
         aCalendar[i].set(Calendar.SECOND,0);
         aCalendar[i].set(Calendar.MILLISECOND,0);
-  
+        long setTime = aCalendar[i].getTimeInMillis();
+        if (setTime < curTime) {
+        	setTime += (24*60*60*1000);
+        	aCalendar[i].setTimeInMillis(setTime);
+        }
+        	
         Intent intent = new Intent(AutoSwitchActivity.this, AlarmReceiver.class);
         intent.putExtra("wifi", aWifiState[i]);
         intent.putExtra("mobile", aMobileState[i]);
