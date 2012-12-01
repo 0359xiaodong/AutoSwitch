@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none" >
+	<TableLayout 
+	    android:id="@+id/table"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" 
+	    android:stretchColumns="0" >
+	
+	    <TableRow
+	        android:id="@+id/tableRow1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" >
+	
+	        <TextView
+	            android:id="@+id/textView1"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_column="1"        
+	            android:text="WiFi" />
+	
+	        <TextView
+	            android:id="@+id/textView2"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="Mobile" />
+	
+	    </TableRow>
+	    
+	    <View
+	        android:layout_height="2dip"
+	        android:background="#FF909090" />        
+
+</TableLayout>
+</ScrollView>
+
+

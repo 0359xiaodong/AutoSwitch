@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.TableLayout;
 //import android.widget.CompoundButton;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 import java.util.Calendar;
 import android.util.Log;
 
@@ -84,28 +86,74 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 	private boolean mMobileStates[] = {true, true, false};
 	private boolean mActives[] = {true, true, true};
 	
+	private TableLayout mTable = null;
+	private View mView = null;
 	//6个多选项
-	CheckBox	mCheckBox1;
-	CheckBox	mCheckBox2;
-	CheckBox	mCheckBox3;
-	CheckBox	mCheckBox4;
-	CheckBox	mCheckBox5;
-	CheckBox	mCheckBox6;
+/*	private CheckBox	mCheckBox1;
+	private CheckBox	mCheckBox2;
+	private CheckBox	mCheckBox3;
+	private CheckBox	mCheckBox4;
+	private CheckBox	mCheckBox5;
+	private CheckBox	mCheckBox6;
 	
-	TableRow	mTableRow2;
-	TableRow	mTableRow3;
-	TableRow	mTableRow4;	
-	TextView 	mTextView3;
-	TextView 	mTextView4;
-	TextView 	mTextView5;	
+	private TableRow	mTableRow2;
+	private TableRow	mTableRow3;
+	private TableRow	mTableRow4;	
+	private TextView 	mTextView3;
+	private TextView 	mTextView4;
+	private TextView 	mTextView5;	*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_auto_switch);
-	
+        setContentView(R.layout.tableview);
+		
+        // 读取配置文件，初始化。
+		load();
         
-		// 取得每个CheckBox对象 
+		// 更新界面显示
+		mTable = (TableLayout) findViewById(R.id.table);
+		//-------------------
+		for (int i = 0; i < 3; ++i) {
+			TableRow row = new TableRow(this);
+			//row.setId(0);
+			//orders++;
+
+			TextView timeView = new TextView(this);
+			timeView.setId(i*3);
+			timeView.setText(String.format("%02d", mHours[i]) + ":" + String.format("%02d", mMinutes[i]));	
+			//timeView.setVisibility(View.GONE);
+			timeView.setOnClickListener(this);
+
+			CheckBox wifiBox = new CheckBox(this);
+
+			wifiBox.setId(i*3 + 1);			
+			wifiBox.setChecked(mWifiStates[i]);
+			wifiBox.setOnClickListener(this); 			
+			
+			CheckBox mobileBox = new CheckBox(this);
+			mobileBox.setId(i*3 + 2);
+			mobileBox.setChecked(mMobileStates[i]);
+			mobileBox.setOnClickListener(this); 			
+			
+			row.addView(timeView);
+			row.addView(wifiBox);
+			row.addView(mobileBox);
+
+			mTable.addView(row);
+			
+			View cutLine = new View(this);
+			if (i < 2) cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
+			else cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
+			cutLine.setMinimumHeight(2);
+			//cutLine.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));  
+			mTable.addView(cutLine);
+		}
+
+		
+		//-------------------
+        
+/*		// 取得每个CheckBox对象 
 		mCheckBox1 = (CheckBox) findViewById(R.id.checkBox1);
 		mCheckBox2 = (CheckBox) findViewById(R.id.checkBox2);
 		mCheckBox3 = (CheckBox) findViewById(R.id.checkBox3);
@@ -120,8 +168,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 		mTextView4 = (TextView) findViewById(R.id.textView4);
 		mTextView5 = (TextView) findViewById(R.id.textView5);
 		
-		// 读取配置文件，初始化。
-		load();
+
 		
 		mCheckBox1.setChecked(mWifiStates[0]);
 		mCheckBox2.setChecked(mMobileStates[0]);
@@ -144,7 +191,8 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 		// 更新 TextView显示
     	mTextView3.setText(String.format("%02d", mHours[0]) + ":" + String.format("%02d", mMinutes[0]));	
     	mTextView4.setText(String.format("%02d", mHours[1]) + ":" + String.format("%02d", mMinutes[1]));	
-    	mTextView5.setText(String.format("%02d", mHours[2]) + ":" + String.format("%02d", mMinutes[2]));	
+    	mTextView5.setText(String.format("%02d", mHours[2]) + ":" + String.format("%02d", mMinutes[2]));
+    	*/	
 		
 		// 创建日历实例
         mCalendars = new Calendar[3];
@@ -184,6 +232,48 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     
     @Override
     public void onClick(View v) {  
+    	int id = v.getId();
+    	int row = id / 3;
+    	int colum = id % 3;
+    	CheckBox box = null;
+    	switch (colum)
+    	{
+    	case 0: // textview
+			Calendar calendar = mCalendars[row];
+			int mHour = calendar.get(Calendar.HOUR_OF_DAY);
+			int mMinute = calendar.get(Calendar.MINUTE);
+			mView = v;
+			new TimePickerDialog(AutoSwitchActivity.this,
+					new TimePickerDialog.OnTimeSetListener() {
+						public void onTimeSet(TimePicker view,
+								int hourOfDay, int minute) {
+					    	int row = mView.getId() / 3;
+					    	TextView textView =  (TextView)mView;
+							mHours[row] = hourOfDay;
+							mMinutes[row] = minute;
+							textView.setText(String.format("%02d",
+									mHours[row])
+									+ ":"
+									+ String.format("%02d", mMinutes[row]));
+							setSwitchRule(row);
+						}
+					}, mHour, mMinute, true).show();    		
+    		break;
+    	case 1: // wifi checkbox
+    		box = (CheckBox)v;
+    		mWifiStates[row] 	= box.isChecked();
+    		break;
+    	case 2: // mobile checkbox
+    		box = (CheckBox)v;
+    		mMobileStates[row] 	= box.isChecked();	
+    		break;
+    	default:
+    		break;
+    	}
+
+
+    	
+/*    	
         if (v == mCheckBox1){  
 			mWifiStates[0] 	= mCheckBox1.isChecked();
 	        setSwitchRule(0);
@@ -253,7 +343,8 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 							setSwitchRule(2);
 						}
 					}, mHour, mMinute, true).show();
-        }
+		}
+*/
     }  
     
     // 更新切换规则，生成相应的alarm
