@@ -96,11 +96,6 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 		mTextView4 = (TextView) findViewById(R.id.textView4);
 		mTextView5 = (TextView) findViewById(R.id.textView5);
 		
-		// 初始化wifi、mobile状态数组
-		//mWifiStates 		= new boolean[3];
-		//mMobileStates 	= new boolean[3];
-		//mActives = new boolean[3];
-		
 		// 读取配置文件，初始化。
 		load();
 		
@@ -110,124 +105,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 		mCheckBox4.setChecked(mMobileStates[1]);
 		mCheckBox5.setChecked(mWifiStates[2]);
 		mCheckBox6.setChecked(mMobileStates[2]);
-
-/*				
-		//对每个选项设置事件监听
-		mCheckBox1.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-			{
-				mWifiStates[0] 	= mCheckBox1.isChecked();
-		        setSwitchRule(0);
-			}
-		});
-		mCheckBox2.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-			{
-				mMobileStates[0]	= mCheckBox2.isChecked();
-		        setSwitchRule(0);
-			}
-		});
-		mCheckBox3.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-			{
-				mWifiStates[1] 	= mCheckBox3.isChecked();
-		        setSwitchRule(1);
-			}
-		});
-		mCheckBox4.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-			{
-				mMobileStates[1]	= mCheckBox4.isChecked();
-		        setSwitchRule(1);
-			}
-		});
-		mCheckBox5.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-			{
-				mWifiStates[2] 	= mCheckBox5.isChecked();
-		        setSwitchRule(2);
-			}
-		});
-		mCheckBox6.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-			{
-				mMobileStates[2]	= mCheckBox6.isChecked();
-		        setSwitchRule(2);
-			}
-		});
 		
-		mTableRow2.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Calendar calendar = mCalendars[0];
-				int mHour = calendar.get(Calendar.HOUR_OF_DAY);
-				int mMinute = calendar.get(Calendar.MINUTE);
-				new TimePickerDialog(AutoSwitchActivity.this,
-						new TimePickerDialog.OnTimeSetListener() {
-							public void onTimeSet(TimePicker view,
-									int hourOfDay, int minute) {
-								mHours[0] = hourOfDay;
-								mMinutes[0] = minute;
-								mTextView3.setText(String.format("%02d",
-										mHours[0])
-										+ ":"
-										+ String.format("%02d", mMinutes[0]));
-								setSwitchRule(0);
-							}
-						}, mHour, mMinute, true).show();
-
-			}
-		});
-		
-		mTableRow3.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Calendar calendar = mCalendars[1];
-				int hour = calendar.get(Calendar.HOUR_OF_DAY);
-				int minute = calendar.get(Calendar.MINUTE);
-				new TimePickerDialog(AutoSwitchActivity.this,
-						new TimePickerDialog.OnTimeSetListener() {
-							public void onTimeSet(TimePicker view,
-									int hourOfDay, int minute) {
-								mHours[1] = hourOfDay;
-								mMinutes[1] = minute;
-								mTextView4.setText(String.format("%02d",
-										mHours[1])
-										+ ":"
-										+ String.format("%02d", mMinutes[1]));
-								setSwitchRule(1);
-							}
-						}, hour, minute, true).show();
-
-			}
-		});
-		
-		mTableRow4.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Calendar calendar = mCalendars[2];
-				int mHour = calendar.get(Calendar.HOUR_OF_DAY);
-				int mMinute = calendar.get(Calendar.MINUTE);
-				new TimePickerDialog(AutoSwitchActivity.this,
-						new TimePickerDialog.OnTimeSetListener() {
-							public void onTimeSet(TimePicker view,
-									int hourOfDay, int minute) {
-								mHours[2] = hourOfDay;
-								mMinutes[2] = minute;
-								mTextView5.setText(String.format("%02d",
-										mHours[2])
-										+ ":"
-										+ String.format("%02d", mMinutes[2]));
-								setSwitchRule(2);
-							}
-						}, mHour, mMinute, true).show();
-
-			}
-		});
-*/
 		mCheckBox1.setOnClickListener(this);
 		mCheckBox2.setOnClickListener(this);
 		mCheckBox3.setOnClickListener(this);
@@ -409,22 +287,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			}
 		}
 	}
-	
-    void _load()
-	{
-		/* 装载数据 */
-		// 取得活动的preferences对象.
-		SharedPreferences settings = getPreferences(Activity.MODE_PRIVATE);
-
-		// 取得值.
-		mWifiStates[0] = settings.getBoolean("bWifi0", false);
-		mMobileStates[0] = settings.getBoolean("bMobile0", true);		
-		mWifiStates[1] = settings.getBoolean("bWifi1", true);
-		mMobileStates[1] = settings.getBoolean("bMobile1", true);		
-		mWifiStates[2] = settings.getBoolean("bWifi2", false);
-		mMobileStates[2] = settings.getBoolean("bMobile2", false);		
-	}
-	
+		
 	// 保存数据 
 	void save()
 	{
@@ -441,27 +304,6 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			mSQLiteDatabase.update(TABLE_NAME, cv, TABLE_ID+"="+i, null);
 		}
 	}
-	
-	void _save()
-	{
-		SharedPreferences uiState = getPreferences(0);
-
-		// 取得编辑对象
-		SharedPreferences.Editor editor = uiState.edit();
-
-		// 添加值
-		editor.putBoolean("bWifi0", mWifiStates[0]);
-		editor.putBoolean("bMobile0", mMobileStates[0]);
-		editor.putBoolean("bWifi1", mWifiStates[1]);
-		editor.putBoolean("bMobile1", mMobileStates[1]);
-		editor.putBoolean("bWifi2", mWifiStates[2]);
-		editor.putBoolean("bMobile2", mMobileStates[2]);		
-		
-		// 提交保存
-		editor.commit();
-	}
-	
-
 	
 	public class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context, String name, CursorFactory cursorFactory,
