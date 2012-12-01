@@ -1,3 +1,12 @@
+/**
+* 文件名：AlarmReceiver.java
+*
+* 版本信息：
+* 日期：2012-11-22
+* Copyright powervv.com 2012
+* 版权所有
+*
+*/
 package com.powervv.autoswitch;
 
 import java.lang.reflect.Method;
@@ -10,6 +19,20 @@ import android.net.wifi.WifiManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 
+
+/**
+*
+* 项目名称：com.powervv.autoswitch.AutoSwitchActivity
+* 类名称：AlarmReceiver
+* 类描述：
+* 创建人：paul
+* 创建时间：2012-12-1 下午7:27:19
+* 修改人：paul
+* 修改时间：2012-12-1 下午7:27:19
+* 修改备注：
+* @version
+*
+*/
 public class AlarmReceiver extends BroadcastReceiver
 {
 	private static final String	TAG	= "AlarmReceiver";	

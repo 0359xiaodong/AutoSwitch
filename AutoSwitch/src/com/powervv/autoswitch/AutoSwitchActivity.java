@@ -16,7 +16,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
+//import android.widget.CompoundButton;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -26,7 +26,7 @@ import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+//import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
@@ -103,6 +103,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auto_switch);
+	
         
 		// 取得每个CheckBox对象 
 		mCheckBox1 = (CheckBox) findViewById(R.id.checkBox1);
