@@ -1,3 +1,12 @@
+/**
+* 文件名：AutoSwitchActivity.java
+*
+* 版本信息：
+* 日期：2012-11-22
+* Copyright powervv.com 2012
+* 版权所有
+*
+*/
 package com.powervv.autoswitch;
 
 import android.os.Bundle;
@@ -26,33 +35,23 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.Calendar;
 import android.util.Log;
 
+
+/**
+*
+* 项目名称：com.powervv.autoswitch.AutoSwitchActivity
+* 类名称：AutoSwitchActivity
+* 类描述：
+* 创建人：paul
+* 创建时间：2012-12-1 下午6:50:22
+* 修改人：paul
+* 修改时间：2012-12-1 下午6:50:22
+* 修改备注：
+* @version
+*
+*/
 public class AutoSwitchActivity extends Activity implements OnClickListener {
 	private static final String	TAG	= "AutoSwitch";
-	Calendar mCalendars[];
-	int mHours[] 	= 	{7, 19, 23}; 
-	int mMinutes[] 	= 	{0, 0, 30}; 
-	boolean mWifiStates[] = {false, true, false};
-	boolean mMobileStates[] = {true, true, false};
-	boolean mActives[] = {true, true, true};
 	
-	//6个多选项
-	CheckBox	mCheckBox1;
-	CheckBox	mCheckBox2;
-	CheckBox	mCheckBox3;
-	CheckBox	mCheckBox4;
-	CheckBox	mCheckBox5;
-	CheckBox	mCheckBox6;
-	
-	TableRow	mTableRow2;
-	TableRow	mTableRow3;
-	TableRow	mTableRow4;	
-	TextView 	mTextView3;
-	TextView 	mTextView4;
-	TextView 	mTextView5;	
-	
-	/* 数据库对象 */
-	private SQLiteDatabase		mSQLiteDatabase	= null;
-
 	/* 数据库名 */
 	private final static String	DATABASE_NAME	= "AutoSwitch.db";
 	
@@ -74,8 +73,32 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 	private final static String	CREATE_TABLE	= "CREATE TABLE " + TABLE_NAME + 
 		" (" + TABLE_ID + " INTEGER PRIMARY KEY," + TABLE_HOUR + " INTERGER,"+ TABLE_MINUTE + " INTEGER," +
 			TABLE_WIFI + " INTEGER," + TABLE_MOBILE + " INTEGER," + TABLE_ACTIVE + " INTEGER)";
+	
+	/* 数据库对象 */
+	private SQLiteDatabase		mSQLiteDatabase	= null;
+	
+	private Calendar mCalendars[];
+	private int mHours[] 	= 	{7, 19, 23}; 
+	private int mMinutes[] 	= 	{0, 0, 30}; 
+	private boolean mWifiStates[] = {false, true, false};
+	private boolean mMobileStates[] = {true, true, false};
+	private boolean mActives[] = {true, true, true};
+	
+	//6个多选项
+	CheckBox	mCheckBox1;
+	CheckBox	mCheckBox2;
+	CheckBox	mCheckBox3;
+	CheckBox	mCheckBox4;
+	CheckBox	mCheckBox5;
+	CheckBox	mCheckBox6;
+	
+	TableRow	mTableRow2;
+	TableRow	mTableRow3;
+	TableRow	mTableRow4;	
+	TextView 	mTextView3;
+	TextView 	mTextView4;
+	TextView 	mTextView5;	
 
-	   
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,18 +157,15 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     }
 
     @Override
-    public void onSaveInstanceState (Bundle outState)
-    {
+	public void onSaveInstanceState(Bundle outState) {
 		/* 这里我们在退出应用程序时保存数据 */
-		save();		
+		save();
 		super.onSaveInstanceState(outState);
-    }
+	}
     
     @Override
-	public boolean onKeyDown(int keyCode, KeyEvent event)
-	{
-		if (keyCode == KeyEvent.KEYCODE_BACK)
-		{
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			/* 这里我们在退出应用程序时保存数据 */
 			save();
 			mSQLiteDatabase.close();
@@ -272,36 +292,30 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     }
     
 	// 装载、读取数据   
-	void load()
-	{
-		if (null == mSQLiteDatabase)
-		{	
-			DatabaseHelper dbHelper = new DatabaseHelper(this, DATABASE_NAME, null, DATABASE_VERSION);
-			try
-			{
+	void load() {
+		if (null == mSQLiteDatabase) {
+			DatabaseHelper dbHelper = new DatabaseHelper(this, DATABASE_NAME,
+					null, DATABASE_VERSION);
+			try {
 				mSQLiteDatabase = dbHelper.getWritableDatabase();
-			}
-			catch (SQLiteException ex)
-			{
+			} catch (SQLiteException ex) {
 				mSQLiteDatabase = dbHelper.getReadableDatabase();
 			}
 		}
 	}
 		
 	// 保存数据 
-	void save()
-	{
+	void save() {
 		Log.d(TAG, "Update table item and quit!");
 		ContentValues cv = new ContentValues();
-		for (int i = 0; i < 3; ++i)
-		{
+		for (int i = 0; i < 3; ++i) {
 			cv.put(TABLE_ID, i);
 			cv.put(TABLE_HOUR, mHours[i]);
 			cv.put(TABLE_MINUTE, mMinutes[i]);
 			cv.put(TABLE_WIFI, mWifiStates[i]);
 			cv.put(TABLE_MOBILE, mMobileStates[i]);
 			cv.put(TABLE_ACTIVE, mActives[i]);
-			mSQLiteDatabase.update(TABLE_NAME, cv, TABLE_ID+"="+i, null);
+			mSQLiteDatabase.update(TABLE_NAME, cv, TABLE_ID + "=" + i, null);
 		}
 	}
 	
