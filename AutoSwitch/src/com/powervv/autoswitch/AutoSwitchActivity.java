@@ -34,8 +34,10 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
-import java.util.Calendar;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Calendar;
 
 
 /**
@@ -78,129 +80,89 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 	
 	/* 数据库对象 */
 	private SQLiteDatabase		mSQLiteDatabase	= null;
-	
-	private Calendar mCalendars[];
-	private int mHours[] 	= 	{7, 19, 23}; 
-	private int mMinutes[] 	= 	{0, 0, 30}; 
-	private boolean mWifiStates[] = {false, true, false};
-	private boolean mMobileStates[] = {true, true, false};
-	private boolean mActives[] = {true, true, true};
-	
+		
 	private TableLayout mTable = null;
 	private View mView = null;
-	//6个多选项
-/*	private CheckBox	mCheckBox1;
-	private CheckBox	mCheckBox2;
-	private CheckBox	mCheckBox3;
-	private CheckBox	mCheckBox4;
-	private CheckBox	mCheckBox5;
-	private CheckBox	mCheckBox6;
-	
-	private TableRow	mTableRow2;
-	private TableRow	mTableRow3;
-	private TableRow	mTableRow4;	
-	private TextView 	mTextView3;
-	private TextView 	mTextView4;
-	private TextView 	mTextView5;	*/
+	private Record mTmpRecord;
 
+	private ArrayList<Record> mRecords = null;
+	
+	private class Record {
+		private int mId;
+		private int mHour;
+		private int mMinute;
+		private boolean mWifiState;
+		private boolean mMobileState;
+		private boolean mActive;
+		private Calendar mCalendar;
+		
+		Record(){
+			mId = 0;
+			mHour = 0;
+			mMinute = 0;
+			mWifiState = false;
+			mMobileState = false;
+			mActive = false;
+			mCalendar = null;
+		}
+		Record(int id, int hour, int minute, boolean wifiState, boolean mobileState, boolean active, Calendar calendar){
+			mId = id;
+			mHour = hour;
+			mMinute = minute;
+			mWifiState = wifiState;
+			mMobileState = mobileState;
+			mActive = active;
+			mCalendar = calendar;
+		}
+	}
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tableview);
 		
+        mRecords = new ArrayList<Record>();
+        
         // 读取配置文件，初始化。
 		load();
         
 		// 更新界面显示
 		mTable = (TableLayout) findViewById(R.id.table);
-		//-------------------
-		for (int i = 0; i < 3; ++i) {
+		int len = mRecords.size();
+		int idx = 0;
+		for (Record record : mRecords) {
+			int i = record.mId;
 			TableRow row = new TableRow(this);
-			//row.setId(0);
-			//orders++;
-
+			
 			TextView timeView = new TextView(this);
 			timeView.setId(i*3);
-			timeView.setText(String.format("%02d", mHours[i]) + ":" + String.format("%02d", mMinutes[i]));	
-			//timeView.setVisibility(View.GONE);
+			timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
 			timeView.setOnClickListener(this);
 
 			CheckBox wifiBox = new CheckBox(this);
-
 			wifiBox.setId(i*3 + 1);			
-			wifiBox.setChecked(mWifiStates[i]);
+			wifiBox.setChecked(record.mWifiState);
 			wifiBox.setOnClickListener(this); 			
 			
 			CheckBox mobileBox = new CheckBox(this);
 			mobileBox.setId(i*3 + 2);
-			mobileBox.setChecked(mMobileStates[i]);
+			mobileBox.setChecked(record.mMobileState);
 			mobileBox.setOnClickListener(this); 			
 			
 			row.addView(timeView);
 			row.addView(wifiBox);
 			row.addView(mobileBox);
-
 			mTable.addView(row);
 			
 			View cutLine = new View(this);
-			if (i < 2) cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
+			if (idx < len-1) cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
 			else cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
 			cutLine.setMinimumHeight(2);
 			//cutLine.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));  
 			mTable.addView(cutLine);
+			++idx;
 		}
-
 		
-		//-------------------
-        
-/*		// 取得每个CheckBox对象 
-		mCheckBox1 = (CheckBox) findViewById(R.id.checkBox1);
-		mCheckBox2 = (CheckBox) findViewById(R.id.checkBox2);
-		mCheckBox3 = (CheckBox) findViewById(R.id.checkBox3);
-		mCheckBox4 = (CheckBox) findViewById(R.id.checkBox4);
-		mCheckBox5 = (CheckBox) findViewById(R.id.checkBox5);
-		mCheckBox6 = (CheckBox) findViewById(R.id.checkBox6);	
-		
-		mTableRow2 = (TableRow) findViewById(R.id.tableRow2);
-		mTableRow3 = (TableRow) findViewById(R.id.tableRow3);
-		mTableRow4 = (TableRow) findViewById(R.id.tableRow4);		
-		mTextView3 = (TextView) findViewById(R.id.textView3);
-		mTextView4 = (TextView) findViewById(R.id.textView4);
-		mTextView5 = (TextView) findViewById(R.id.textView5);
-		
-
-		
-		mCheckBox1.setChecked(mWifiStates[0]);
-		mCheckBox2.setChecked(mMobileStates[0]);
-		mCheckBox3.setChecked(mWifiStates[1]);
-		mCheckBox4.setChecked(mMobileStates[1]);
-		mCheckBox5.setChecked(mWifiStates[2]);
-		mCheckBox6.setChecked(mMobileStates[2]);
-		
-		mCheckBox1.setOnClickListener(this);
-		mCheckBox2.setOnClickListener(this);
-		mCheckBox3.setOnClickListener(this);
-		mCheckBox4.setOnClickListener(this);
-		mCheckBox5.setOnClickListener(this);
-		mCheckBox6.setOnClickListener(this);
-		mTableRow2.setOnClickListener(this);
-		mTableRow3.setOnClickListener(this);
-		mTableRow4.setOnClickListener(this);
-		
-		
-		// 更新 TextView显示
-    	mTextView3.setText(String.format("%02d", mHours[0]) + ":" + String.format("%02d", mMinutes[0]));	
-    	mTextView4.setText(String.format("%02d", mHours[1]) + ":" + String.format("%02d", mMinutes[1]));	
-    	mTextView5.setText(String.format("%02d", mHours[2]) + ":" + String.format("%02d", mMinutes[2]));
-    	*/	
-		
-		// 创建日历实例
-        mCalendars = new Calendar[3];
-        int len = mCalendars.length;
-        for (int i = 0; i < len; ++i)
-        {
-        	mCalendars[i]=Calendar.getInstance();
-        }
         setSwitchRules();
          	
     }
@@ -236,120 +198,60 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     	int row = id / 3;
     	int colum = id % 3;
     	CheckBox box = null;
+		mView = v;    	
+		mTmpRecord = getRecordbyId(row);    	
     	switch (colum)
     	{
     	case 0: // textview
-			Calendar calendar = mCalendars[row];
+
+			Calendar calendar = mTmpRecord.mCalendar; //mCalendars[row];
 			int mHour = calendar.get(Calendar.HOUR_OF_DAY);
 			int mMinute = calendar.get(Calendar.MINUTE);
-			mView = v;
+
 			new TimePickerDialog(AutoSwitchActivity.this,
 					new TimePickerDialog.OnTimeSetListener() {
 						public void onTimeSet(TimePicker view,
 								int hourOfDay, int minute) {
 					    	int row = mView.getId() / 3;
 					    	TextView textView =  (TextView)mView;
-							mHours[row] = hourOfDay;
-							mMinutes[row] = minute;
+					    	mTmpRecord.mHour = hourOfDay;
+					    	mTmpRecord.mMinute = minute;
 							textView.setText(String.format("%02d",
-									mHours[row])
+									mTmpRecord.mHour)
 									+ ":"
-									+ String.format("%02d", mMinutes[row]));
+									+ String.format("%02d", mTmpRecord.mMinute));
 							setSwitchRule(row);
 						}
-					}, mHour, mMinute, true).show();    		
+					}, mHour, mMinute, true).show(); 
+
     		break;
     	case 1: // wifi checkbox
     		box = (CheckBox)v;
-    		mWifiStates[row] 	= box.isChecked();
+    		mTmpRecord.mWifiState 	= box.isChecked();
     		break;
     	case 2: // mobile checkbox
     		box = (CheckBox)v;
-    		mMobileStates[row] 	= box.isChecked();	
+    		mTmpRecord.mMobileState = box.isChecked();	
     		break;
     	default:
     		break;
     	}
-
-
     	
-/*    	
-        if (v == mCheckBox1){  
-			mWifiStates[0] 	= mCheckBox1.isChecked();
-	        setSwitchRule(0);
-        }else if (v == mCheckBox2){  
-			mMobileStates[0]	= mCheckBox2.isChecked();
-	        setSwitchRule(0);
-        }else if (v == mCheckBox3){  
-			mWifiStates[1] 	= mCheckBox3.isChecked();
-	        setSwitchRule(1);
-        }else if (v == mCheckBox4){  
-			mMobileStates[1]	= mCheckBox4.isChecked();
-	        setSwitchRule(1);
-        }else if (v == mCheckBox5){  
-			mWifiStates[2] 	= mCheckBox5.isChecked();
-	        setSwitchRule(2);
-        }else if (v == mCheckBox6){  
-			mMobileStates[2]	= mCheckBox6.isChecked();
-	        setSwitchRule(2);
-        }else if (v == mTableRow2){  
-			Calendar calendar = mCalendars[0];
-			int mHour = calendar.get(Calendar.HOUR_OF_DAY);
-			int mMinute = calendar.get(Calendar.MINUTE);
-			new TimePickerDialog(AutoSwitchActivity.this,
-					new TimePickerDialog.OnTimeSetListener() {
-						public void onTimeSet(TimePicker view,
-								int hourOfDay, int minute) {
-							mHours[0] = hourOfDay;
-							mMinutes[0] = minute;
-							mTextView3.setText(String.format("%02d",
-									mHours[0])
-									+ ":"
-									+ String.format("%02d", mMinutes[0]));
-							setSwitchRule(0);
-						}
-					}, mHour, mMinute, true).show();
-        }else if (v == mTableRow3){  
-			Calendar calendar = mCalendars[1];
-			int hour = calendar.get(Calendar.HOUR_OF_DAY);
-			int minute = calendar.get(Calendar.MINUTE);
-			new TimePickerDialog(AutoSwitchActivity.this,
-					new TimePickerDialog.OnTimeSetListener() {
-						public void onTimeSet(TimePicker view,
-								int hourOfDay, int minute) {
-							mHours[1] = hourOfDay;
-							mMinutes[1] = minute;
-							mTextView4.setText(String.format("%02d",
-									mHours[1])
-									+ ":"
-									+ String.format("%02d", mMinutes[1]));
-							setSwitchRule(1);
-						}
-					}, hour, minute, true).show();
-        }else if (v == mTableRow4){  
-			Calendar calendar = mCalendars[2];
-			int mHour = calendar.get(Calendar.HOUR_OF_DAY);
-			int mMinute = calendar.get(Calendar.MINUTE);
-			new TimePickerDialog(AutoSwitchActivity.this,
-					new TimePickerDialog.OnTimeSetListener() {
-						public void onTimeSet(TimePicker view,
-								int hourOfDay, int minute) {
-							mHours[2] = hourOfDay;
-							mMinutes[2] = minute;
-							mTextView5.setText(String.format("%02d",
-									mHours[2])
-									+ ":"
-									+ String.format("%02d", mMinutes[2]));
-							setSwitchRule(2);
-						}
-					}, mHour, mMinute, true).show();
-		}
-*/
+		mView = null;
+		mTmpRecord = null;
     }  
+    
+    private Record getRecordbyId(int id) {
+    	for (Record record : mRecords){
+    		if (record.mId == id)
+    			return record;
+    	}   	
+    	return null;
+    }
     
     // 更新切换规则，生成相应的alarm
     private void setSwitchRules() {
-        int len = mCalendars.length;
+        int len = mRecords.size();
         for (int i = 0; i < len; ++i)
         {
            	setSwitchRule(i);
@@ -357,30 +259,32 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     }
     
     private void setSwitchRule(int i) {
+    	Record record = mRecords.get(i);
+    	Calendar calendar = record.mCalendar;
     	long curTime = System.currentTimeMillis();
-        mCalendars[i].setTimeInMillis(curTime);
+    	calendar.setTimeInMillis(curTime);
         //String time = aCalendar[i].get(Calendar.HOUR_OF_DAY) + ":" + aCalendar[i].get(Calendar.MINUTE);
     	//Log.e(TAG, time);
-        mCalendars[i].set(Calendar.HOUR_OF_DAY, mHours[i]);
-        mCalendars[i].set(Calendar.MINUTE, mMinutes[i]);
-        mCalendars[i].set(Calendar.SECOND,0);
-        mCalendars[i].set(Calendar.MILLISECOND,0);
-        long setTime = mCalendars[i].getTimeInMillis();
+    	calendar.set(Calendar.HOUR_OF_DAY, record.mHour);
+    	calendar.set(Calendar.MINUTE, record.mMinute);
+    	calendar.set(Calendar.SECOND,0);
+    	calendar.set(Calendar.MILLISECOND,0);
+        long setTime = calendar.getTimeInMillis();
         if (setTime < curTime) {
         	setTime += (24*60*60*1000);
-        	mCalendars[i].setTimeInMillis(setTime);
+        	calendar.setTimeInMillis(setTime);
         }
         	
         Intent intent = new Intent(AutoSwitchActivity.this, AlarmReceiver.class);
-        intent.putExtra("wifi", mWifiStates[i]);
-        intent.putExtra("mobile", mMobileStates[i]);
+        intent.putExtra("wifi", record.mWifiState);
+        intent.putExtra("mobile", record.mMobileState);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(AutoSwitchActivity.this, i, intent,  PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am;
         /* 获取闹钟管理的实例 */
         am = (AlarmManager)getSystemService(ALARM_SERVICE);
         /* 设置闹钟 周期闹 */
-        am.setRepeating(AlarmManager.RTC_WAKEUP, mCalendars[i].getTimeInMillis(), (24*60*60*1000), pendingIntent);     	
+        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), (24*60*60*1000), pendingIntent);     	
     }
     
 	// 装载、读取数据   
@@ -400,14 +304,14 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 	void save() {
 		Log.d(TAG, "Update table item and quit!");
 		ContentValues cv = new ContentValues();
-		for (int i = 0; i < 3; ++i) {
-			cv.put(TABLE_ID, i);
-			cv.put(TABLE_HOUR, mHours[i]);
-			cv.put(TABLE_MINUTE, mMinutes[i]);
-			cv.put(TABLE_WIFI, mWifiStates[i]);
-			cv.put(TABLE_MOBILE, mMobileStates[i]);
-			cv.put(TABLE_ACTIVE, mActives[i]);
-			mSQLiteDatabase.update(TABLE_NAME, cv, TABLE_ID + "=" + i, null);
+		for (Record record : mRecords) {
+			cv.put(TABLE_ID, record.mId);
+			cv.put(TABLE_HOUR, record.mHour);
+			cv.put(TABLE_MINUTE, record.mMinute);
+			cv.put(TABLE_WIFI, record.mWifiState);
+			cv.put(TABLE_MOBILE, record.mMobileState);
+			cv.put(TABLE_ACTIVE, record.mActive);
+			mSQLiteDatabase.update(TABLE_NAME, cv, TABLE_ID + "=" + record.mId, null);
 		}
 	}
 	
@@ -422,16 +326,21 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			// TODO 创建数据库后，对数据库的操作
 			/* 在数据库mSQLiteDatabase中创建一个表 */
 			Log.d(TAG, "Create Database and talbe and item!");
+			int hours[] 	= 	{7, 19, 23}; 
+			int minutes[] 	= 	{0, 0, 30}; 
+			boolean wifiStates[] = {false, true, false};
+			boolean mobileStates[] = {true, true, false};
+			boolean actives[] = {true, true, true};			
 			db.execSQL(CREATE_TABLE);	
-			ContentValues cv = new ContentValues();
+			ContentValues cv = new ContentValues();				
 			for (int i = 0; i < 3; ++i)
 			{
 				cv.put(TABLE_ID, i);
-				cv.put(TABLE_HOUR, mHours[i]);
-				cv.put(TABLE_MINUTE, mMinutes[i]);
-				cv.put(TABLE_WIFI, mWifiStates[i]);
-				cv.put(TABLE_MOBILE, mMobileStates[i]);
-				cv.put(TABLE_ACTIVE, mActives[i]);
+				cv.put(TABLE_HOUR, hours[i]);
+				cv.put(TABLE_MINUTE, minutes[i]);
+				cv.put(TABLE_WIFI, wifiStates[i]);
+				cv.put(TABLE_MOBILE, mobileStates[i]);
+				cv.put(TABLE_ACTIVE, actives[i]);
 				/* 插入数据 */
 				db.insert(TABLE_NAME, null, cv);				
 			}
@@ -448,16 +357,19 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			// TODO 每次成功打开数据库后首先被执行
 			/* 读取表中的数据 */
 			Log.d(TAG, "Open Database and read talbe!");
+			mRecords.clear();
 			Cursor cursor = db.rawQuery(
 					"SELECT * FROM " + TABLE_NAME, null);
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {
-				int id = cursor.getInt(0);
-				mHours[id] = cursor.getInt(1);
-				mMinutes[id] = cursor.getInt(2);
-				mWifiStates[id] = (cursor.getInt(3) == 0)? false:true;
-				mMobileStates[id] = (cursor.getInt(4) == 0)? false:true ;
-				mActives[id] = (cursor.getInt(5) == 0)? false:true;
+				Record record = new Record(cursor.getInt(0), // id
+											cursor.getInt(1), // hour
+											cursor.getInt(2), // minute
+											(cursor.getInt(3) == 0)? false:true, // wifi
+											(cursor.getInt(4) == 0)? false:true, // mobile
+											(cursor.getInt(5) == 0)? false:true, // enable
+											Calendar.getInstance()); // calendar
+				mRecords.add(record);
 				cursor.moveToNext();
 			}
 			cursor.close();
