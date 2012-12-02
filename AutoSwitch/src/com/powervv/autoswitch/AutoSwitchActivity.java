@@ -17,17 +17,22 @@ import android.view.MenuItem;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.CheckBox;
 import android.widget.TableLayout;
+import android.widget.LinearLayout;
 //import android.widget.CompoundButton;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 //import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -55,7 +60,7 @@ import java.util.Calendar;
 * @version
 *
 */
-public class AutoSwitchActivity extends Activity implements OnClickListener {
+public class AutoSwitchActivity extends Activity implements OnClickListener, OnLongClickListener {
 	private static final String	TAG	= "AutoSwitch";
 	
 	/* 数据库名 */
@@ -84,8 +89,6 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 	private SQLiteDatabase		mSQLiteDatabase	= null;
 		
 	private TableLayout mTable = null;
-	private View mView = null;
-	private Record mTmpRecord;
 
 	private ArrayList<Record> mRecords = null;
 	
@@ -130,11 +133,16 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
         
 		// 更新界面显示
 		mTable = (TableLayout) findViewById(R.id.table);
-		int len = mRecords.size();
-		int idx = 0;
 		for (Record record : mRecords) {
 			int i = record.mId;
 			TableRow row = new TableRow(this);
+			row.setId(i + 1000);
+			row.setOnLongClickListener(this);
+			//row.setBackgroundColor(Color.GRAY);			
+//			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);  
+//			lp.setMargins(10, 20, 30, 40);  
+//			row.setLayoutParams(lp);  
+			
 			
 			TextView timeView = new TextView(this);
 			timeView.setId(i*3);
@@ -156,14 +164,11 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			row.addView(mobileBox);
 			mTable.addView(row);
 			
-			View cutLine = new View(this);
-			//if (idx < len-1) cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
-			//else 
-			cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
-			cutLine.setMinimumHeight(2);
+			//View cutLine = new View(this);
+			//cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
+			//cutLine.setMinimumHeight(2);
 			//cutLine.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));  
-			mTable.addView(cutLine);
-			++idx;
+			//mTable.addView(cutLine);
 		}
 		
         setSwitchRules();
@@ -220,6 +225,9 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			// 更新界面显示
 			int i = record.mId;
 			TableRow row = new TableRow(this);
+			row.setId(i + 1000);
+			row.setOnLongClickListener(this);
+			
 			TextView timeView = new TextView(this);
 			timeView.setId(i*3);
 			timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
@@ -238,13 +246,11 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			row.addView(timeView);
 			row.addView(wifiBox);
 			row.addView(mobileBox);
-			mTable.addView(row);
+			mTable.addView(row);		
 			
-			View cutLine = new View(this);
-			cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
-			cutLine.setMinimumHeight(2);			
-			//cutLine.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));  
-			mTable.addView(cutLine);			
+			// 增加新的定时事件  
+			// ToDo:目前创建事件时默认active，因此在这里设置，后续改为对该事件Enable的时候再增加，这里默认是inactive的。
+			setSwitchRule(mRecords.size()-1);
 			break;
 		default:
 			break;
@@ -253,18 +259,16 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     }
     
     @Override
-    public void onClick(View v) {  
+    public void onClick(final View v) {  
     	int id = v.getId();
     	int row = id / 3;
     	int colum = id % 3;
-    	CheckBox box = null;
-		mView = v;    	
-		mTmpRecord = getRecordbyId(row);    	
+    	CheckBox box = null;   	
+		final Record tmpRecord = getRecordbyId(row);    	
     	switch (colum)
     	{
     	case 0: // textview
-
-			Calendar calendar = mTmpRecord.mCalendar; //mCalendars[row];
+			Calendar calendar = tmpRecord.mCalendar;
 			int mHour = calendar.get(Calendar.HOUR_OF_DAY);
 			int mMinute = calendar.get(Calendar.MINUTE);
 
@@ -272,14 +276,14 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 					new TimePickerDialog.OnTimeSetListener() {
 						public void onTimeSet(TimePicker view,
 								int hourOfDay, int minute) {
-					    	int row = mView.getId() / 3;
-					    	TextView textView =  (TextView)mView;
-					    	mTmpRecord.mHour = hourOfDay;
-					    	mTmpRecord.mMinute = minute;
+					    	int row = v.getId() / 3;
+					    	TextView textView =  (TextView)v;
+					    	tmpRecord.mHour = hourOfDay;
+					    	tmpRecord.mMinute = minute;
 							textView.setText(String.format("%02d",
-									mTmpRecord.mHour)
+									tmpRecord.mHour)
 									+ ":"
-									+ String.format("%02d", mTmpRecord.mMinute));
+									+ String.format("%02d", tmpRecord.mMinute));
 							setSwitchRule(row);
 						}
 					}, mHour, mMinute, true).show(); 
@@ -287,19 +291,40 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     		break;
     	case 1: // wifi checkbox
     		box = (CheckBox)v;
-    		mTmpRecord.mWifiState 	= box.isChecked();
+    		tmpRecord.mWifiState 	= box.isChecked();
     		break;
     	case 2: // mobile checkbox
     		box = (CheckBox)v;
-    		mTmpRecord.mMobileState = box.isChecked();	
+    		tmpRecord.mMobileState = box.isChecked();	
     		break;
     	default:
     		break;
     	}
-    	
-		mView = null;
-		mTmpRecord = null;
     }  
+    
+    @Override
+    public boolean onLongClick(final View v) {
+    	Dialog dialog = new AlertDialog.Builder(this).setTitle("提示").setMessage("确认要删除此条目吗？").
+    						setPositiveButton("确定", new DialogInterface.OnClickListener() {     				            
+    				            @Override 
+    				            public void onClick(DialogInterface dialog, int which) {  
+    				            	Record record = getRecordbyId(v.getId()-1000);    				        
+    				            	// 删除数组元素
+    				            	mRecords.remove(record);
+    				            	
+    				            	// 删除界面元素
+    				            	mTable.removeView(v);
+    				            	
+    				            	// 清理数据库
+    				            	mSQLiteDatabase.delete(TABLE_NAME,	TABLE_ID + "=" + record.mId, null);
+    				            	
+    				            	// 取消定时事件
+    				            	cancelSwitchRule(mRecords.indexOf(record));
+    				            }  
+    				        } ).setNegativeButton("退出", null).create();
+    	dialog.show();
+    	return true;
+    }
     
     private Record getRecordbyId(int id) {
     	for (Record record : mRecords){
@@ -345,6 +370,15 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
         am = (AlarmManager)getSystemService(ALARM_SERVICE);
         /* 设置闹钟 周期闹 */
         am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), (24*60*60*1000), pendingIntent);     	
+    }
+    
+    private void cancelSwitchRule(int i) {
+        Intent intent = new Intent(AutoSwitchActivity.this, AlarmReceiver.class);
+    	PendingIntent pendingIntent = PendingIntent.getBroadcast(AutoSwitchActivity.this, i, intent,  PendingIntent.FLAG_UPDATE_CURRENT);
+    	 AlarmManager am;
+         /* 获取闹钟管理的实例 */
+         am = (AlarmManager)getSystemService(ALARM_SERVICE);
+         am.cancel(pendingIntent);
     }
     
 	// 装载、读取数据   
