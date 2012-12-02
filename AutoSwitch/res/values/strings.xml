@@ -2,7 +2,7 @@
 
     <string name="app_name">AutoSwitch</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
+    <string name="menu_settings">添加定时事件</string>
     <string name="title_activity_auto_switch">AutoSwitchActivity</string>
 
 </resources>

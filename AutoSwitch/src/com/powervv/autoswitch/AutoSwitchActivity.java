@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -103,7 +105,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			mWifiState = false;
 			mMobileState = false;
 			mActive = false;
-			mCalendar = null;
+			mCalendar = Calendar.getInstance();
 		}
 		Record(int id, int hour, int minute, boolean wifiState, boolean mobileState, boolean active, Calendar calendar){
 			mId = id;
@@ -155,8 +157,9 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
 			mTable.addView(row);
 			
 			View cutLine = new View(this);
-			if (idx < len-1) cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
-			else cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
+			//if (idx < len-1) cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
+			//else 
+			cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
 			cutLine.setMinimumHeight(2);
 			//cutLine.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));  
 			mTable.addView(cutLine);
@@ -190,6 +193,63 @@ public class AutoSwitchActivity extends Activity implements OnClickListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_auto_switch, menu);
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	int itemId = item.getItemId();
+    	switch (itemId) {
+		case R.id.menu_settings:
+			// 添加新记录到数组
+			Record record = new Record();
+			if (mRecords.size() != 0) {
+				record.mId = mRecords.get(mRecords.size()-1).mId + 1;
+			}
+			mRecords.add(record);
+			
+			// 更新数据库
+			ContentValues cv = new ContentValues();
+			cv.put(TABLE_ID, record.mId);
+			cv.put(TABLE_HOUR, record.mHour);
+			cv.put(TABLE_MINUTE, record.mMinute);
+			cv.put(TABLE_WIFI, record.mWifiState);
+			cv.put(TABLE_MOBILE, record.mMobileState);
+			cv.put(TABLE_ACTIVE, record.mActive);
+			mSQLiteDatabase.insert(TABLE_NAME, TABLE_ID, cv);
+			
+			// 更新界面显示
+			int i = record.mId;
+			TableRow row = new TableRow(this);
+			TextView timeView = new TextView(this);
+			timeView.setId(i*3);
+			timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
+			timeView.setOnClickListener(this);
+
+			CheckBox wifiBox = new CheckBox(this);
+			wifiBox.setId(i*3 + 1);			
+			wifiBox.setChecked(record.mWifiState);
+			wifiBox.setOnClickListener(this); 			
+			
+			CheckBox mobileBox = new CheckBox(this);
+			mobileBox.setId(i*3 + 2);
+			mobileBox.setChecked(record.mMobileState);
+			mobileBox.setOnClickListener(this); 			
+			
+			row.addView(timeView);
+			row.addView(wifiBox);
+			row.addView(mobileBox);
+			mTable.addView(row);
+			
+			View cutLine = new View(this);
+			cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
+			cutLine.setMinimumHeight(2);			
+			//cutLine.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));  
+			mTable.addView(cutLine);			
+			break;
+		default:
+			break;
+		}
+    	return true;
     }
     
     @Override
