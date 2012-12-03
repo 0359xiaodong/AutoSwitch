@@ -137,17 +137,13 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 			int i = record.mId;
 			TableRow row = new TableRow(this);
 			row.setId(i + 1000);
-			row.setOnLongClickListener(this);
-			//row.setBackgroundColor(Color.GRAY);			
-//			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);  
-//			lp.setMargins(10, 20, 30, 40);  
-//			row.setLayoutParams(lp);  
-			
-			
+			//row.setOnLongClickListener(this);
+		
 			TextView timeView = new TextView(this);
 			timeView.setId(i*3);
 			timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
 			timeView.setOnClickListener(this);
+			timeView.setOnLongClickListener(this);
 
 			CheckBox wifiBox = new CheckBox(this);
 			wifiBox.setId(i*3 + 1);			
@@ -164,11 +160,11 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 			row.addView(mobileBox);
 			mTable.addView(row);
 			
-			//View cutLine = new View(this);
-			//cutLine.setBackgroundColor(Color.parseColor("#FF909090"));
-			//cutLine.setMinimumHeight(2);
-			//cutLine.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));  
-			//mTable.addView(cutLine);
+			View cutLine = new View(this);
+			cutLine.setId(i + 2000);
+			cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
+			cutLine.setMinimumHeight(2);  
+			mTable.addView(cutLine);
 		}
 		
         setSwitchRules();
@@ -226,17 +222,20 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 			int i = record.mId;
 			TableRow row = new TableRow(this);
 			row.setId(i + 1000);
-			row.setOnLongClickListener(this);
+			//row.setOnLongClickListener(this);
 			
 			TextView timeView = new TextView(this);
 			timeView.setId(i*3);
 			timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
+			timeView.setFocusable(false);
 			timeView.setOnClickListener(this);
+			timeView.setOnLongClickListener(this);
 
 			CheckBox wifiBox = new CheckBox(this);
 			wifiBox.setId(i*3 + 1);			
 			wifiBox.setChecked(record.mWifiState);
-			wifiBox.setOnClickListener(this); 			
+			wifiBox.setOnClickListener(this); 
+			
 			
 			CheckBox mobileBox = new CheckBox(this);
 			mobileBox.setId(i*3 + 2);
@@ -247,6 +246,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 			row.addView(wifiBox);
 			row.addView(mobileBox);
 			mTable.addView(row);		
+			
+			View cutLine = new View(this);
+			cutLine.setId(i + 2000);
+			cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
+			cutLine.setMinimumHeight(2);  
+			mTable.addView(cutLine);
 			
 			// 增加新的定时事件  
 			// ToDo:目前创建事件时默认active，因此在这里设置，后续改为对该事件Enable的时候再增加，这里默认是inactive的。
@@ -292,10 +297,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     	case 1: // wifi checkbox
     		box = (CheckBox)v;
     		tmpRecord.mWifiState 	= box.isChecked();
+    		setSwitchRule(row);
     		break;
     	case 2: // mobile checkbox
     		box = (CheckBox)v;
     		tmpRecord.mMobileState = box.isChecked();	
+    		setSwitchRule(row);
     		break;
     	default:
     		break;
@@ -308,18 +315,21 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     						setPositiveButton("确定", new DialogInterface.OnClickListener() {     				            
     				            @Override 
     				            public void onClick(DialogInterface dialog, int which) {  
-    				            	Record record = getRecordbyId(v.getId()-1000);    				        
-    				            	// 删除数组元素
-    				            	mRecords.remove(record);
-    				            	
+    				            	int id = ((View)v.getParent()).getId() - 1000;
+    				            	Record record = getRecordbyId(id);   
+  				            	
     				            	// 删除界面元素
-    				            	mTable.removeView(v);
+    				            	mTable.removeView((View)v.getParent());
+    				            	mTable.removeView(findViewById(id + 2000));
     				            	
     				            	// 清理数据库
     				            	mSQLiteDatabase.delete(TABLE_NAME,	TABLE_ID + "=" + record.mId, null);
     				            	
     				            	// 取消定时事件
     				            	cancelSwitchRule(mRecords.indexOf(record));
+    				            	
+    				            	// 删除数组元素
+    				            	mRecords.remove(record);
     				            }  
     				        } ).setNegativeButton("退出", null).create();
     	dialog.show();
