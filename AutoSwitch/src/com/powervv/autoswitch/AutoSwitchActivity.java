@@ -103,16 +103,11 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 		private boolean mActive;
 		private Calendar mCalendar;
 		
-		Record(){
-			mId = 0;
-			mHour = 0;
-			mMinute = 0;
-			mWifiState = false;
-			mMobileState = false;
-			mActive = false;
+		Record() {
 			mCalendar = Calendar.getInstance();
 		}
-		Record(int id, int hour, int minute, boolean wifiState, boolean mobileState, boolean active, Calendar calendar){
+		
+		Record(int id, int hour, int minute, boolean wifiState, boolean mobileState, boolean active, Calendar calendar) {
 			mId = id;
 			mHour = hour;
 			mMinute = minute;
@@ -136,43 +131,92 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 		// 更新界面显示
 		mTable = (TableLayout) findViewById(R.id.table);
 		for (Record record : mRecords) {
-			int i = record.mId;
-			TableRow row = new TableRow(this);
-			row.setId(i + 1000);
-			//row.setOnLongClickListener(this);
-		
-			TextView timeView = new TextView(this);
-			timeView.setId(i*3);
-			timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
-			timeView.setOnClickListener(this);
-			timeView.setOnLongClickListener(this);
-			timeView.setOnTouchListener(this);
-
-			CheckBox wifiBox = new CheckBox(this);
-			wifiBox.setId(i*3 + 1);			
-			wifiBox.setChecked(record.mWifiState);
-			wifiBox.setOnClickListener(this); 			
-			
-			CheckBox mobileBox = new CheckBox(this);
-			mobileBox.setId(i*3 + 2);
-			mobileBox.setChecked(record.mMobileState);
-			mobileBox.setOnClickListener(this); 			
-			
-			row.addView(timeView);
-			row.addView(wifiBox);
-			row.addView(mobileBox);
-			mTable.addView(row);
-			
-			View cutLine = new View(this);
-			cutLine.setId(i + 2000);
-			cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
-			cutLine.setMinimumHeight(2);  
-			mTable.addView(cutLine);
+			updateOneItemView(record);
 		}
 		
         setSwitchRules();
          	
     }
+
+
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	int itemId = item.getItemId();
+    	switch (itemId) {
+		case R.id.menu_settings:
+			// 添加新记录到数组
+			Record record = new Record();
+	    	Calendar calendar = record.mCalendar;
+	    	long curTime = System.currentTimeMillis();
+	    	calendar.setTimeInMillis(curTime);
+	    	record.mHour = calendar.get(Calendar.HOUR_OF_DAY);
+	    	record.mMinute = calendar.get(Calendar.MINUTE);
+			if (mRecords.size() != 0) {
+				record.mId = mRecords.get(mRecords.size()-1).mId + 1;
+			}
+			mRecords.add(record);
+			
+			// 更新数据库
+			ContentValues cv = new ContentValues();
+			cv.put(TABLE_ID, record.mId);
+			cv.put(TABLE_HOUR, record.mHour);
+			cv.put(TABLE_MINUTE, record.mMinute);
+			cv.put(TABLE_WIFI, record.mWifiState);
+			cv.put(TABLE_MOBILE, record.mMobileState);
+			cv.put(TABLE_ACTIVE, record.mActive);
+			mSQLiteDatabase.insert(TABLE_NAME, TABLE_ID, cv);
+			
+			// 更新界面显示
+			updateOneItemView(record);
+			
+			// 增加新的定时事件  
+			// ToDo:目前创建事件时默认active，因此在这里设置，后续改为对该事件Enable的时候再增加，这里默认是inactive的。
+			setSwitchRule(mRecords.size()-1);
+			break;
+		default:
+			break;
+		}
+    	return true;
+    }
+
+	private void updateOneItemView(Record record) {
+		int i = record.mId;
+		TableRow row = new TableRow(this);
+		row.setId(i + 1000);
+		//row.setOnLongClickListener(this);
+		int height = getWindowManager().getDefaultDisplay().getHeight();
+		row.setMinimumHeight(height / 10);
+		row.setBackgroundColor(Color.WHITE);
+
+		TextView timeView = new TextView(this);
+		timeView.setId(i*3);
+		timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
+		timeView.setOnClickListener(this);
+		timeView.setOnLongClickListener(this);
+		timeView.setOnTouchListener(this);
+
+		CheckBox wifiBox = new CheckBox(this);
+		wifiBox.setId(i*3 + 1);			
+		wifiBox.setChecked(record.mWifiState);
+		wifiBox.setOnClickListener(this); 			
+		
+		CheckBox mobileBox = new CheckBox(this);
+		mobileBox.setId(i*3 + 2);
+		mobileBox.setChecked(record.mMobileState);
+		mobileBox.setOnClickListener(this); 			
+		
+		row.addView(timeView);
+		row.addView(wifiBox);
+		row.addView(mobileBox);
+		mTable.addView(row);
+		
+		View cutLine = new View(this);
+		cutLine.setId(i + 2000);
+		cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
+		cutLine.setMinimumHeight(2);  
+		mTable.addView(cutLine);
+	}
 
     @Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -199,73 +243,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
         return true;
     }
     
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-    	int itemId = item.getItemId();
-    	switch (itemId) {
-		case R.id.menu_settings:
-			// 添加新记录到数组
-			Record record = new Record();
-			if (mRecords.size() != 0) {
-				record.mId = mRecords.get(mRecords.size()-1).mId + 1;
-			}
-			mRecords.add(record);
-			
-			// 更新数据库
-			ContentValues cv = new ContentValues();
-			cv.put(TABLE_ID, record.mId);
-			cv.put(TABLE_HOUR, record.mHour);
-			cv.put(TABLE_MINUTE, record.mMinute);
-			cv.put(TABLE_WIFI, record.mWifiState);
-			cv.put(TABLE_MOBILE, record.mMobileState);
-			cv.put(TABLE_ACTIVE, record.mActive);
-			mSQLiteDatabase.insert(TABLE_NAME, TABLE_ID, cv);
-			
-			// 更新界面显示
-			int i = record.mId;
-			TableRow row = new TableRow(this);
-			row.setId(i + 1000);
-			//row.setOnLongClickListener(this);
-			
-			TextView timeView = new TextView(this);
-			timeView.setId(i*3);
-			timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
-			timeView.setFocusable(false);
-			timeView.setOnClickListener(this);
-			timeView.setOnLongClickListener(this);
-			timeView.setOnTouchListener(this);
 
-			CheckBox wifiBox = new CheckBox(this);
-			wifiBox.setId(i*3 + 1);			
-			wifiBox.setChecked(record.mWifiState);
-			wifiBox.setOnClickListener(this); 
-			
-			
-			CheckBox mobileBox = new CheckBox(this);
-			mobileBox.setId(i*3 + 2);
-			mobileBox.setChecked(record.mMobileState);
-			mobileBox.setOnClickListener(this); 			
-			
-			row.addView(timeView);
-			row.addView(wifiBox);
-			row.addView(mobileBox);
-			mTable.addView(row);		
-			
-			View cutLine = new View(this);
-			cutLine.setId(i + 2000);
-			cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
-			cutLine.setMinimumHeight(2);  
-			mTable.addView(cutLine);
-			
-			// 增加新的定时事件  
-			// ToDo:目前创建事件时默认active，因此在这里设置，后续改为对该事件Enable的时候再增加，这里默认是inactive的。
-			setSwitchRule(mRecords.size()-1);
-			break;
-		default:
-			break;
-		}
-    	return true;
-    }
     
     @Override
     public void onClick(final View v) {  
