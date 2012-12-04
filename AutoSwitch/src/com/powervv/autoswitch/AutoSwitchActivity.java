@@ -15,9 +15,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.CheckBox;
 import android.widget.TableLayout;
 import android.widget.LinearLayout;
@@ -60,7 +62,7 @@ import java.util.Calendar;
 * @version
 *
 */
-public class AutoSwitchActivity extends Activity implements OnClickListener, OnLongClickListener {
+public class AutoSwitchActivity extends Activity implements OnClickListener, OnLongClickListener, OnTouchListener {
 	private static final String	TAG	= "AutoSwitch";
 	
 	/* Êý¾Ý¿âÃû */
@@ -144,6 +146,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 			timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
 			timeView.setOnClickListener(this);
 			timeView.setOnLongClickListener(this);
+			timeView.setOnTouchListener(this);
 
 			CheckBox wifiBox = new CheckBox(this);
 			wifiBox.setId(i*3 + 1);			
@@ -230,6 +233,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 			timeView.setFocusable(false);
 			timeView.setOnClickListener(this);
 			timeView.setOnLongClickListener(this);
+			timeView.setOnTouchListener(this);
 
 			CheckBox wifiBox = new CheckBox(this);
 			wifiBox.setId(i*3 + 1);			
@@ -335,6 +339,25 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     	dialog.show();
     	return true;
     }
+    
+    @Override
+	public boolean onTouch(View v, MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			Log.i("log", "action_down");
+			View parentView = (View)v.getParent();
+			parentView.setBackgroundColor(Color.CYAN);
+			return false;
+		} else if (event.getAction() == MotionEvent.ACTION_UP) {
+			Log.i("log", "action_up");
+			View parentView = (View)v.getParent();
+			parentView.setBackgroundColor(Color.WHITE);
+			return false;
+		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			Log.i("log", "action_move");
+			return false;
+		}
+		return false;
+	}
     
     private Record getRecordbyId(int id) {
     	for (Record record : mRecords){
