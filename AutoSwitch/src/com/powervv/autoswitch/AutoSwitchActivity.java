@@ -10,7 +10,9 @@
 package com.powervv.autoswitch;
 
 import android.os.Bundle;
+import android.R.integer;
 import android.app.Activity;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -184,13 +186,14 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 		int i = record.mId;
 		TableRow row = new TableRow(this);
 		row.setId(i + 1000);
-		//row.setOnLongClickListener(this);
-		int height = getWindowManager().getDefaultDisplay().getHeight();
-		row.setMinimumHeight(height / 10);
+		//int height = getWindowManager().getDefaultDisplay().getHeight();
+		//row.setMinimumHeight(height / 10);
+		row.setMinimumHeight(48);
 		row.setBackgroundColor(Color.WHITE);
-
+		
 		TextView timeView = new TextView(this);
 		timeView.setId(i*3);
+		timeView.setTextSize(18);
 		timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
 		timeView.setOnClickListener(this);
 		timeView.setOnLongClickListener(this);
@@ -199,7 +202,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 		CheckBox wifiBox = new CheckBox(this);
 		wifiBox.setId(i*3 + 1);			
 		wifiBox.setChecked(record.mWifiState);
-		wifiBox.setOnClickListener(this); 			
+		wifiBox.setOnClickListener(this); 
 		
 		CheckBox mobileBox = new CheckBox(this);
 		mobileBox.setId(i*3 + 2);
@@ -251,7 +254,8 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     	int row = id / 3;
     	int colum = id % 3;
     	CheckBox box = null;   	
-		final Record tmpRecord = getRecordbyId(row);    	
+		final Record tmpRecord = getRecordbyId(row);    
+		final int itemIdx = mRecords.indexOf(tmpRecord);
     	switch (colum)
     	{
     	case 0: // textview
@@ -271,7 +275,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 									tmpRecord.mHour)
 									+ ":"
 									+ String.format("%02d", tmpRecord.mMinute));
-							setSwitchRule(row);
+							setSwitchRule(itemIdx);
 						}
 					}, mHour, mMinute, true).show(); 
 
@@ -279,12 +283,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     	case 1: // wifi checkbox
     		box = (CheckBox)v;
     		tmpRecord.mWifiState 	= box.isChecked();
-    		setSwitchRule(row);
+    		setSwitchRule(itemIdx);
     		break;
     	case 2: // mobile checkbox
     		box = (CheckBox)v;
     		tmpRecord.mMobileState = box.isChecked();	
-    		setSwitchRule(row);
+    		setSwitchRule(itemIdx);
     		break;
     	default:
     		break;

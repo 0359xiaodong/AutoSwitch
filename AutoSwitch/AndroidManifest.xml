@@ -16,7 +16,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".AutoSwitchActivity"
-            android:label="@string/title_activity_auto_switch" >
+            android:label="@string/title_activity_auto_switch" 
+            android:theme="@android:style/Theme.Light.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
