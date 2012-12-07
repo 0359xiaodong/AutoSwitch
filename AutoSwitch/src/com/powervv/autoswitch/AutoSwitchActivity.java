@@ -334,8 +334,10 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 			View parentView = (View)v.getParent();
 			parentView.setBackgroundColor(Color.WHITE);
 			return false;
-		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-			Log.i("log", "action_move");
+		} else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+			Log.i("log", "action_cancel");
+			View parentView = (View)v.getParent();
+			parentView.setBackgroundColor(Color.WHITE);
 			return false;
 		}
 		return false;
