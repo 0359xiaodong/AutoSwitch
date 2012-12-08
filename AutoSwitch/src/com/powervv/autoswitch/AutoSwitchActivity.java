@@ -147,6 +147,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     	int itemId = item.getItemId();
     	switch (itemId) {
 		case R.id.menu_settings:
+		{
 			// 添加新记录到数组
 			Record record = new Record();
 	    	Calendar calendar = record.mCalendar;
@@ -174,14 +175,29 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 			
 			// 增加新的定时事件  
 			// ToDo:目前创建事件时默认active，因此在这里设置，后续改为对该事件Enable的时候再增加，这里默认是inactive的。
-			setSwitchRule(mRecords.size()-1);
+			setSwitchRule(record.mId);
 			break;
+		}
+		case R.id.menu_settings2:	
+		{
+			for (Record record : mRecords) {
+		    	// 清理数据库
+		    	mSQLiteDatabase.delete(TABLE_NAME,	TABLE_ID + "=" + record.mId, null);		    	
+		    	// 取消定时事件
+		    	cancelSwitchRule(record.mId);	    	
+			}
+			
+			// 删除数组元素
+	    	mRecords.clear();
+			
+			mTable.removeViews(2, mTable.getChildCount()-2);			
+		}
 		default:
 			break;
 		}
     	return true;
     }
-
+    
 	private void updateOneItemView(Record record) {
 		int i = record.mId;
 		TableRow row = new TableRow(this);
@@ -255,7 +271,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     	int colum = id % 3;
     	CheckBox box = null;   	
 		final Record tmpRecord = getRecordbyId(row);    
-		final int itemIdx = mRecords.indexOf(tmpRecord);
+		//final int itemIdx = mRecords.indexOf(tmpRecord);
     	switch (colum)
     	{
     	case 0: // textview
@@ -275,7 +291,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 									tmpRecord.mHour)
 									+ ":"
 									+ String.format("%02d", tmpRecord.mMinute));
-							setSwitchRule(itemIdx);
+							setSwitchRule(tmpRecord.mId);
 						}
 					}, mHour, mMinute, true).show(); 
 
@@ -283,12 +299,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     	case 1: // wifi checkbox
     		box = (CheckBox)v;
     		tmpRecord.mWifiState 	= box.isChecked();
-    		setSwitchRule(itemIdx);
+    		setSwitchRule(tmpRecord.mId);
     		break;
     	case 2: // mobile checkbox
     		box = (CheckBox)v;
     		tmpRecord.mMobileState = box.isChecked();	
-    		setSwitchRule(itemIdx);
+    		setSwitchRule(tmpRecord.mId);
     		break;
     	default:
     		break;
@@ -312,7 +328,8 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     				            	mSQLiteDatabase.delete(TABLE_NAME,	TABLE_ID + "=" + record.mId, null);
     				            	
     				            	// 取消定时事件
-    				            	cancelSwitchRule(mRecords.indexOf(record));
+    				            	cancelSwitchRule(record.mId);
+    				            	//cancelSwitchRule(mRecords.indexOf(record));
     				            	
     				            	// 删除数组元素
     				            	mRecords.remove(record);
@@ -353,15 +370,18 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     
     // 更新切换规则，生成相应的alarm
     private void setSwitchRules() {
-        int len = mRecords.size();
-        for (int i = 0; i < len; ++i)
-        {
-           	setSwitchRule(i);
-        }
+//        int len = mRecords.size();
+//        for (int i = 0; i < len; ++i)
+//        {
+//           	setSwitchRule(i);
+//        }
+    	for (Record record : mRecords) {
+    		setSwitchRule(record.mId);
+    	}
     }
     
     private void setSwitchRule(int i) {
-    	Record record = mRecords.get(i);
+    	Record record =  getRecordbyId(i);//mRecords.get(i);
     	Calendar calendar = record.mCalendar;
     	long curTime = System.currentTimeMillis();
     	calendar.setTimeInMillis(curTime);

@@ -1,8 +1,9 @@
 <resources>
 
-    <string name="app_name">AutoSwitch</string>
+    <string name="app_name">定时网络开关器</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">添加定时事件</string>
+    <string name="menu_settings2">删除所有定时事件</string>    
     <string name="title_activity_auto_switch">AutoSwitchActivity</string>
 
 </resources>
