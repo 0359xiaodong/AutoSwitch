@@ -67,6 +67,16 @@ import java.util.Calendar;
 public class AutoSwitchActivity extends Activity implements OnClickListener, OnLongClickListener, OnTouchListener {
 	private static final String	TAG	= "AutoSwitch";
 	
+	/* View Id 编码: ViewId = VIEW_ID_BASE  + _id * VIEW_ID_CYCLE + OFFSET */
+	private final static int VIEW_ID_BASE =  1000;
+	private final static int VIEW_ID_CYCLE =  10;
+	private final static int ROW_ID_OFFSET =  0;
+	private final static int ENABLE_ID_OFFSET =  ROW_ID_OFFSET + 1;
+	private final static int TEXTVIEW_ID_OFFSET =  ENABLE_ID_OFFSET + 1;
+	private final static int WIFI_ID_OFFSET =  TEXTVIEW_ID_OFFSET + 1;	
+	private final static int MOBILE_ID_OFFSET =  WIFI_ID_OFFSET + 1;
+	private final static int LINE_ID_OFFSET =  MOBILE_ID_OFFSET + 1;
+		
 	/* 数据库名 */
 	private final static String	DATABASE_NAME	= "AutoSwitch.db";
 	
@@ -201,14 +211,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 	private void updateOneItemView(Record record) {
 		int i = record.mId;
 		TableRow row = new TableRow(this);
-		row.setId(i + 1000);
-		//int height = getWindowManager().getDefaultDisplay().getHeight();
-		//row.setMinimumHeight(height / 10);
+		row.setId(VIEW_ID_BASE  + i * VIEW_ID_CYCLE + ROW_ID_OFFSET);
 		row.setMinimumHeight(48);
 		row.setBackgroundColor(Color.WHITE);
 		
 		TextView timeView = new TextView(this);
-		timeView.setId(i*3);
+		timeView.setId(VIEW_ID_BASE  + i * VIEW_ID_CYCLE + TEXTVIEW_ID_OFFSET);
 		timeView.setTextSize(18);
 		timeView.setText(String.format("%02d", record.mHour) + ":" + String.format("%02d", record.mMinute));	
 		timeView.setOnClickListener(this);
@@ -216,12 +224,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 		timeView.setOnTouchListener(this);
 
 		CheckBox wifiBox = new CheckBox(this);
-		wifiBox.setId(i*3 + 1);			
+		wifiBox.setId(VIEW_ID_BASE  + i * VIEW_ID_CYCLE + WIFI_ID_OFFSET);			
 		wifiBox.setChecked(record.mWifiState);
 		wifiBox.setOnClickListener(this); 
 		
 		CheckBox mobileBox = new CheckBox(this);
-		mobileBox.setId(i*3 + 2);
+		mobileBox.setId(VIEW_ID_BASE  + i * VIEW_ID_CYCLE + MOBILE_ID_OFFSET);
 		mobileBox.setChecked(record.mMobileState);
 		mobileBox.setOnClickListener(this); 			
 		
@@ -231,9 +239,9 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 		mTable.addView(row);
 		
 		View cutLine = new View(this);
-		cutLine.setId(i + 2000);
+		cutLine.setId(VIEW_ID_BASE  + i * VIEW_ID_CYCLE + LINE_ID_OFFSET);
 		cutLine.setBackgroundColor(Color.parseColor("#FFE6E6E6"));
-		cutLine.setMinimumHeight(2);  
+		cutLine.setMinimumHeight(1);  
 		mTable.addView(cutLine);
 	}
 
@@ -267,14 +275,13 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     @Override
     public void onClick(final View v) {  
     	int id = v.getId();
-    	int row = id / 3;
-    	int colum = id % 3;
+    	int recordId = (id - VIEW_ID_BASE) / VIEW_ID_CYCLE;
+    	int viewOffset = (id - VIEW_ID_BASE) % VIEW_ID_CYCLE;
     	CheckBox box = null;   	
-		final Record tmpRecord = getRecordbyId(row);    
-		//final int itemIdx = mRecords.indexOf(tmpRecord);
-    	switch (colum)
+		final Record tmpRecord = getRecordbyId(recordId);    
+    	switch (viewOffset)
     	{
-    	case 0: // textview
+    	case TEXTVIEW_ID_OFFSET : // textview
 			Calendar calendar = tmpRecord.mCalendar;
 			int mHour = calendar.get(Calendar.HOUR_OF_DAY);
 			int mMinute = calendar.get(Calendar.MINUTE);
@@ -283,7 +290,6 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 					new TimePickerDialog.OnTimeSetListener() {
 						public void onTimeSet(TimePicker view,
 								int hourOfDay, int minute) {
-					    	int row = v.getId() / 3;
 					    	TextView textView =  (TextView)v;
 					    	tmpRecord.mHour = hourOfDay;
 					    	tmpRecord.mMinute = minute;
@@ -296,12 +302,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
 					}, mHour, mMinute, true).show(); 
 
     		break;
-    	case 1: // wifi checkbox
+    	case WIFI_ID_OFFSET : // wifi checkbox
     		box = (CheckBox)v;
     		tmpRecord.mWifiState 	= box.isChecked();
     		setSwitchRule(tmpRecord.mId);
     		break;
-    	case 2: // mobile checkbox
+    	case MOBILE_ID_OFFSET : // mobile checkbox
     		box = (CheckBox)v;
     		tmpRecord.mMobileState = box.isChecked();	
     		setSwitchRule(tmpRecord.mId);
@@ -317,19 +323,18 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     						setPositiveButton("确定", new DialogInterface.OnClickListener() {     				            
     				            @Override 
     				            public void onClick(DialogInterface dialog, int which) {  
-    				            	int id = ((View)v.getParent()).getId() - 1000;
+    				            	int id = (v.getId() - VIEW_ID_BASE) / VIEW_ID_CYCLE ;
     				            	Record record = getRecordbyId(id);   
   				            	
-    				            	// 删除界面元素
-    				            	mTable.removeView((View)v.getParent());
-    				            	mTable.removeView(findViewById(id + 2000));
+    				            	// 删除界面元素 （包括后面的分割线）
+    				            	int index = mTable.indexOfChild((View)v.getParent());
+    				            	mTable.removeViews(index, 2);
     				            	
     				            	// 清理数据库
     				            	mSQLiteDatabase.delete(TABLE_NAME,	TABLE_ID + "=" + record.mId, null);
     				            	
     				            	// 取消定时事件
     				            	cancelSwitchRule(record.mId);
-    				            	//cancelSwitchRule(mRecords.indexOf(record));
     				            	
     				            	// 删除数组元素
     				            	mRecords.remove(record);
@@ -370,18 +375,13 @@ public class AutoSwitchActivity extends Activity implements OnClickListener, OnL
     
     // 更新切换规则，生成相应的alarm
     private void setSwitchRules() {
-//        int len = mRecords.size();
-//        for (int i = 0; i < len; ++i)
-//        {
-//           	setSwitchRule(i);
-//        }
     	for (Record record : mRecords) {
     		setSwitchRule(record.mId);
     	}
     }
     
     private void setSwitchRule(int i) {
-    	Record record =  getRecordbyId(i);//mRecords.get(i);
+    	Record record =  getRecordbyId(i);
     	Calendar calendar = record.mCalendar;
     	long curTime = System.currentTimeMillis();
     	calendar.setTimeInMillis(curTime);
