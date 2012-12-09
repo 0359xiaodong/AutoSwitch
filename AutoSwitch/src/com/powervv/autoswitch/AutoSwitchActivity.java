@@ -60,7 +60,7 @@ import java.util.Calendar;
  */
 public class AutoSwitchActivity extends Activity implements OnClickListener,
 		OnLongClickListener, OnTouchListener {
-	private static final String TAG = "AutoSwitch";
+	private final static String TAG = "AutoSwitch";
 
 	/* View Id ±àÂë: ViewId = VIEW_ID_BASE + _id * VIEW_ID_CYCLE + ID_OFFSET */
 	private final static int VIEW_ID_BASE = 1000;
