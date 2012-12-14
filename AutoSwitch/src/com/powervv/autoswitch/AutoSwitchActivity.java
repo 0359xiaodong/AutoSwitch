@@ -22,6 +22,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.CheckBox;
 import android.widget.TableLayout;
 import android.widget.LinearLayout;
@@ -211,12 +213,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		row.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + ROW_ID_OFFSET);
 		row.setMinimumHeight(48);
 		row.setBackgroundColor(Color.WHITE);
-
+		
 		CheckBox activeBox = new CheckBox(this);
 		activeBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + ENABLE_ID_OFFSET);
 		activeBox.setChecked(record.mActive);
 		activeBox.setOnClickListener(this);
-
+		
 		TextView timeView = new TextView(this);
 		timeView.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + TEXTVIEW_ID_OFFSET);
 		timeView.setTextSize(18);
@@ -225,6 +227,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		timeView.setOnClickListener(this);
 		timeView.setOnLongClickListener(this);
 		timeView.setOnTouchListener(this);
+
 
 		CheckBox wifiBox = new CheckBox(this);
 		wifiBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + WIFI_ID_OFFSET);
