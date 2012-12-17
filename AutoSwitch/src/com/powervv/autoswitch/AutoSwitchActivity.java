@@ -238,7 +238,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		
 		TextView timeView = new TextView(this);
 		timeView.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + TEXTVIEW_ID_OFFSET);
-		timeView.setTextSize(18);
+		timeView.setTextSize(24);
 		timeView.setText(String.format("%02d", record.mHour) + ":"
 				+ String.format("%02d", record.mMinute));
 		timeView.setOnClickListener(this);
@@ -256,10 +256,14 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		mobileBox.setChecked(record.mMobileState);
 		mobileBox.setOnClickListener(this);
 
-		row.addView(activeBox);
-		row.addView(timeView);
-		row.addView(wifiBox);
-		row.addView(mobileBox);
+		TableRow.LayoutParams params = new TableRow.LayoutParams();
+		params.setMargins(0, 8, 0, 8);
+		params.gravity = Gravity.CENTER_VERTICAL;
+		
+		row.addView(activeBox, params);
+		row.addView(timeView, params);
+		row.addView(wifiBox, params);
+		row.addView(mobileBox, params);
 		mTable.addView(row);
 
 		View cutLine = new View(this);

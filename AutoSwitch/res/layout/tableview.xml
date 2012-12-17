@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"   
     android:scrollbars="none" >
 	<TableLayout 
@@ -11,13 +11,13 @@
 	
 	    <TableRow
 	        android:id="@+id/tableRow1"
-	        android:layout_width="wrap_content"
+	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content" 
 	        android:background="#CC0B0B3B">
 		    
 		    <TextView
 	            android:id="@+id/textView0"
-	            android:layout_width="wrap_content"
+	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"   
 	           	android:layout_marginLeft="4dp"
 	           	android:layout_marginRight="4dp"
@@ -29,7 +29,7 @@
 	        
 	        <TextView
 	            android:id="@+id/textView1"
-	            android:layout_width="wrap_content"
+	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:layout_column="2"    
 	           	android:layout_marginLeft="4dp"
@@ -42,7 +42,7 @@
 	
 	        <TextView
 	            android:id="@+id/textView2"
-	            android:layout_width="wrap_content"
+	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	           	android:layout_marginLeft="4dp"
 	           	android:layout_marginRight="4dp"
