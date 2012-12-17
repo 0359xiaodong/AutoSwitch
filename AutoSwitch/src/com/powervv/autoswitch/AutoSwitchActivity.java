@@ -52,6 +52,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import net.youmi.android.appoffers.*;
+
 /**
  * 
  * 项目名称：com.powervv.autoswitch.AutoSwitchActivity 类名称：AutoSwitchActivity 类描述：
@@ -135,8 +137,9 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tableview);
 
+		YoumiOffersManager.init(this, "50cd2ee7ad94103d", "8e22a1db3c5b0143");
+		
 		mRecords = new ArrayList<Record>();
-
 		// 读取配置文件，初始化。
 		load();
 
@@ -155,6 +158,20 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		int itemId = item.getItemId();
 		switch (itemId) {
 		case R.id.menu_settings: {
+			// 无积分时，最多支持三个定时任务
+			if (mRecords.size() >=3 && YoumiPointsManager.queryPoints(this) == 0) {
+				Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
+						.setMessage("免费下载任一推荐应用，即可无限制添加定时任务。是否前往？")
+						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								YoumiOffersManager.showOffers(AutoSwitchActivity.this, YoumiOffersManager.TYPE_REWARD_OFFERS);
+							}
+						}).setNegativeButton("退出", null).create();
+				dialog.show();											
+				return false;
+			}
+						
 			// 添加新记录到数组
 			Record record = new Record();
 			Calendar calendar = record.mCalendar;
