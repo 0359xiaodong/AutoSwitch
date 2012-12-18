@@ -106,7 +106,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 	private TableLayout mTable = null;
 
 	private ArrayList<Record> mRecords = null;
-
+	
 	private class Record {
 		private int mId;
 		private int mHour;
@@ -229,7 +229,12 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		TableRow row = new TableRow(this);
 		row.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + ROW_ID_OFFSET);
 		row.setMinimumHeight(48);
-		row.setBackgroundColor(Color.WHITE);
+		if (record.mActive) {
+			row.setBackgroundColor(Color.WHITE);
+
+		} else {
+			row.setBackgroundColor(Color.LTGRAY);
+		}
 		
 		CheckBox activeBox = new CheckBox(this);
 		activeBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + ENABLE_ID_OFFSET);
@@ -245,17 +250,16 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		timeView.setOnLongClickListener(this);
 		timeView.setOnTouchListener(this);
 
-
 		CheckBox wifiBox = new CheckBox(this);
 		wifiBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + WIFI_ID_OFFSET);
 		wifiBox.setChecked(record.mWifiState);
 		wifiBox.setOnClickListener(this);
-
+	
 		CheckBox mobileBox = new CheckBox(this);
 		mobileBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + MOBILE_ID_OFFSET);
 		mobileBox.setChecked(record.mMobileState);
 		mobileBox.setOnClickListener(this);
-
+		
 		TableRow.LayoutParams params = new TableRow.LayoutParams();
 		params.setMargins(0, 8, 0, 8);
 		params.gravity = Gravity.CENTER_VERTICAL;
@@ -347,10 +351,13 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		case ENABLE_ID_OFFSET: // active checkbox
 			box = (CheckBox) v;
 			tmpRecord.mActive = box.isChecked();
+			View row = (View)v.getParent();
 			if (tmpRecord.mActive) {
+				row.setBackgroundColor(Color.WHITE);
 				setSwitchRule(tmpRecord.mId);
 			}
 			else {
+				row.setBackgroundColor(Color.LTGRAY);
 				cancelSwitchRule(tmpRecord.mId);
 			}
 			break;
@@ -393,22 +400,19 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-			Log.i("log", "action_down");
 			View parentView = (View) v.getParent();
 			parentView.setBackgroundColor(Color.CYAN);
-			return false;
-		} else if (event.getAction() == MotionEvent.ACTION_UP) {
-			Log.i("log", "action_up");
+
+		} else if (event.getAction() == MotionEvent.ACTION_UP
+				|| event.getAction() == MotionEvent.ACTION_CANCEL) {
+			int id = (v.getId() - VIEW_ID_BASE) / VIEW_ID_CYCLE;
+			Record record = getRecordbyId(id);
 			View parentView = (View) v.getParent();
-			parentView.setBackgroundColor(Color.WHITE);
-			return false;
-		} else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
-			Log.i("log", "action_cancel");
-			View parentView = (View) v.getParent();
-			parentView.setBackgroundColor(Color.WHITE);
-			return false;
+			parentView.setBackgroundColor(record.mActive ? Color.WHITE
+					: Color.LTGRAY);
 		}
 		return false;
+
 	}
 
 	private Record getRecordbyId(int id) {
