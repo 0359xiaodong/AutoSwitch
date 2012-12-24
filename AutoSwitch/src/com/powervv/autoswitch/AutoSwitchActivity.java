@@ -27,6 +27,7 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.CheckBox;
 import android.widget.TableLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 //import android.widget.CompoundButton;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -159,18 +160,18 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		switch (itemId) {
 		case R.id.menu_settings: {
 			// 无积分时，最多支持三个定时任务
-			if (mRecords.size() >=3 && YoumiPointsManager.queryPoints(this) == 0) {
-				Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
-						.setMessage("免费下载任一推荐应用，即可无限制添加定时任务。是否前往？")
-						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								YoumiOffersManager.showOffers(AutoSwitchActivity.this, YoumiOffersManager.TYPE_REWARD_OFFERS);
-							}
-						}).setNegativeButton("退出", null).create();
-				dialog.show();											
-				return false;
-			}
+//			if (mRecords.size() >=3 && YoumiPointsManager.queryPoints(this) == 0) {
+//				Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
+//						.setMessage("免费下载任一推荐应用，即可无限制添加定时任务。是否前往？")
+//						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//							@Override
+//							public void onClick(DialogInterface dialog, int which) {
+//								YoumiOffersManager.showOffers(AutoSwitchActivity.this, YoumiOffersManager.TYPE_REWARD_OFFERS);
+//							}
+//						}).setNegativeButton("退出", null).create();
+//				dialog.show();											
+//				return false;
+//			}
 						
 			// 添加新记录到数组
 			Record record = new Record();
@@ -202,21 +203,27 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			// setSwitchRule(record.mId); // 已修改。
 			break;
 		}
-		case R.id.menu_settings2: {
-			for (Record record : mRecords) {
-				// 清理数据库
-				mSQLiteDatabase.delete(TABLE_NAME, TABLE_ID + "=" + record.mId,
-						null);
-				// 取消定时事件
-				if (record.mActive) {
-					cancelSwitchRule(record.mId);
-				}
-			}
-
-			// 删除数组元素
-			mRecords.clear();
-
-			mTable.removeViews(2, mTable.getChildCount() - 2);
+		case R.id.menu_settings2: {			
+			Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
+					.setMessage("确认要删除所有条目吗？")
+					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							for (Record record : mRecords) {
+								// 清理数据库
+								mSQLiteDatabase.delete(TABLE_NAME, TABLE_ID + "=" + record.mId,
+										null);
+								// 取消定时事件
+								if (record.mActive) {
+									cancelSwitchRule(record.mId);
+								}
+							}
+							// 删除数组元素
+							mRecords.clear();
+							mTable.removeViews(2, mTable.getChildCount() - 2);
+						}
+					}).setNegativeButton("退出", null).create();
+			dialog.show();			
 		}
 		default:
 			break;
@@ -355,6 +362,11 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			if (tmpRecord.mActive) {
 				row.setBackgroundColor(Color.WHITE);
 				setSwitchRule(tmpRecord.mId);
+				Toast.makeText(
+						AutoSwitchActivity.this,
+						"该定时事件设置为" + String.format("%02d", tmpRecord.mHour) + ":" 
+						+ String.format("%02d", tmpRecord.mMinute) 
+						+ "启动", Toast.LENGTH_LONG).show();
 			}
 			else {
 				row.setBackgroundColor(Color.LTGRAY);
