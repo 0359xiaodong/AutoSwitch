@@ -2,8 +2,9 @@
 
     <string name="app_name">定时网络开关</string>
     <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">添加定时事件</string>
-    <string name="menu_settings2">删除所有定时事件</string>    
+    <string name="menu_setting_add">添加事件</string>
+    <string name="menu_setting_delete">删除所有事件</string>    
+    <string name="menu_setting_about">联系作者</string>  
     <string name="title_activity_auto_switch">定时网络开关</string>
 
 </resources>

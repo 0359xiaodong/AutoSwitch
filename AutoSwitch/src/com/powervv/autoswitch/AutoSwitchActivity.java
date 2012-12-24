@@ -158,7 +158,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int itemId = item.getItemId();
 		switch (itemId) {
-		case R.id.menu_settings: {
+		case R.id.menu_setting_add: {
 			// 无积分时，最多支持三个定时任务
 //			if (mRecords.size() >=3 && YoumiPointsManager.queryPoints(this) == 0) {
 //				Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
@@ -203,7 +203,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			// setSwitchRule(record.mId); // 已修改。
 			break;
 		}
-		case R.id.menu_settings2: {			
+		case R.id.menu_setting_delete: {			
 			Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
 					.setMessage("确认要删除所有条目吗？")
 					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -223,7 +223,15 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 							mTable.removeViews(2, mTable.getChildCount() - 2);
 						}
 					}).setNegativeButton("退出", null).create();
-			dialog.show();			
+			dialog.show();	
+			break;
+		}
+		case R.id.menu_setting_about: {
+			Intent intent = new Intent();
+			intent.setClass(AutoSwitchActivity.this, AboutActivity.class);
+			startActivity(intent);
+			AutoSwitchActivity.this.finish();
+			break;
 		}
 		default:
 			break;

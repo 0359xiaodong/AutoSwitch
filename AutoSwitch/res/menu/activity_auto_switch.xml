@@ -1,10 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
+    <item android:id="@+id/menu_setting_add"
+        android:title="@string/menu_setting_add"
         android:icon="@android:drawable/ic_menu_add"
         android:orderInCategory="100" />
-    <item android:id="@+id/menu_settings2"
-    	android:title="@string/menu_settings2"
+    <item android:id="@+id/menu_setting_delete"
+    	android:title="@string/menu_setting_delete"
         android:icon="@android:drawable/ic_menu_delete"    	
     	android:orderInCategory="101" />
+	<item android:id="@+id/menu_setting_about"
+    	android:title="@string/menu_setting_about"
+        android:icon="@android:drawable/ic_menu_info_details"    	
+    	android:orderInCategory="102" />
 </menu>
