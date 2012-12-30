@@ -28,8 +28,8 @@ import android.os.Bundle;
  * 
  */
 public class AlarmReceiver extends BroadcastReceiver {
+	final static String statesInfo[] = { "开启", "关闭" };	
 	private final static String TAG = "AlarmReceiver";
-	private final static String statesInfo[] = { "开启", "关闭" };	
 	private ConnectivityManager mConnectivityManager;
 
 	public void onReceive(Context context, Intent intent) {

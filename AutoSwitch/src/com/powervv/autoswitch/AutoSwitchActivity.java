@@ -25,9 +25,11 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TableLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 //import android.widget.CompoundButton;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -140,10 +142,34 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 
 		YoumiOffersManager.init(this, "50cd2ee7ad94103d", "8e22a1db3c5b0143");
 		
+		final ImageButton imgButton = (ImageButton)findViewById(R.id.imageButton);
+		 imgButton.setOnClickListener(new View.OnClickListener() {	             
+		             @Override
+		             public void onClick(View v) {
+		     			addOneItem();
+		             }
+		         });
+		
+		 imgButton.setOnTouchListener(new View.OnTouchListener() {
+             @Override
+             public boolean onTouch(View v, MotionEvent event) {
+                 if(event.getAction()==MotionEvent.ACTION_DOWN){
+                	 ((ImageButton)v).setImageDrawable(getResources().getDrawable(R.drawable.add_item_sel));
+                 }
+                 else if(event.getAction()==MotionEvent.ACTION_UP ||
+                		 event.getAction()==MotionEvent.ACTION_CANCEL){
+                	 ((ImageButton)v).setImageDrawable(getResources().getDrawable(R.drawable.add_item_normal));
+                 }
+                 return false;
+             }
+         });
+		 
 		mRecords = new ArrayList<Record>();
 		// 读取配置文件，初始化。
 		load();
 
+		// android:background="#CC0B0B3B">
+		
 		// 更新界面显示
 		mTable = (TableLayout) findViewById(R.id.table);
 		for (Record record : mRecords) {
@@ -159,48 +185,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		int itemId = item.getItemId();
 		switch (itemId) {
 		case R.id.menu_setting_add: {
-			// 无积分时，最多支持三个定时任务
-//			if (mRecords.size() >=3 && YoumiPointsManager.queryPoints(this) == 0) {
-//				Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
-//						.setMessage("免费下载任一推荐应用，即可无限制添加定时任务。是否前往？")
-//						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//							@Override
-//							public void onClick(DialogInterface dialog, int which) {
-//								YoumiOffersManager.showOffers(AutoSwitchActivity.this, YoumiOffersManager.TYPE_REWARD_OFFERS);
-//							}
-//						}).setNegativeButton("退出", null).create();
-//				dialog.show();											
-//				return false;
-//			}
-						
-			// 添加新记录到数组
-			Record record = new Record();
-			Calendar calendar = record.mCalendar;
-			long curTime = System.currentTimeMillis();
-			calendar.setTimeInMillis(curTime);
-			record.mHour = calendar.get(Calendar.HOUR_OF_DAY);
-			record.mMinute = calendar.get(Calendar.MINUTE);
-			if (mRecords.size() != 0) {
-				record.mId = mRecords.get(mRecords.size() - 1).mId + 1;
-			}
-			mRecords.add(record);
-
-			// 更新数据库
-			ContentValues cv = new ContentValues();
-			cv.put(TABLE_ID, record.mId);
-			cv.put(TABLE_HOUR, record.mHour);
-			cv.put(TABLE_MINUTE, record.mMinute);
-			cv.put(TABLE_WIFI, record.mWifiState);
-			cv.put(TABLE_MOBILE, record.mMobileState);
-			cv.put(TABLE_ACTIVE, record.mActive);
-			mSQLiteDatabase.insert(TABLE_NAME, TABLE_ID, cv);
-
-			// 更新界面显示
-			updateOneItemView(record);
-
-			// 增加新的定时事件
-			// ToDo:目前创建事件时默认active，因此在这里设置，后续改为对该事件Enable的时候再增加，这里默认是inactive的。
-			// setSwitchRule(record.mId); // 已修改。
+			addOneItem();
 			break;
 		}
 		case R.id.menu_setting_delete: {			
@@ -238,6 +223,47 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		}
 		return true;
 	}
+	
+	private void addOneItem() {
+		// 无积分时，最多支持三个定时任务
+//		if (mRecords.size() >=3 && YoumiPointsManager.queryPoints(this) == 0) {
+//			Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
+//					.setMessage("免费下载任一推荐应用，即可无限制添加定时任务。是否前往？")
+//					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//						@Override
+//						public void onClick(DialogInterface dialog, int which) {
+//							YoumiOffersManager.showOffers(AutoSwitchActivity.this, YoumiOffersManager.TYPE_REWARD_OFFERS);
+//						}
+//					}).setNegativeButton("退出", null).create();
+//			dialog.show();											
+//			return false;
+//		}
+					
+		// 添加新记录到数组
+		Record record = new Record();
+		Calendar calendar = record.mCalendar;
+		long curTime = System.currentTimeMillis();
+		calendar.setTimeInMillis(curTime);
+		record.mHour = calendar.get(Calendar.HOUR_OF_DAY);
+		record.mMinute = calendar.get(Calendar.MINUTE);
+		if (mRecords.size() != 0) {
+			record.mId = mRecords.get(mRecords.size() - 1).mId + 1;
+		}
+		mRecords.add(record);
+
+		// 更新数据库
+		ContentValues cv = new ContentValues();
+		cv.put(TABLE_ID, record.mId);
+		cv.put(TABLE_HOUR, record.mHour);
+		cv.put(TABLE_MINUTE, record.mMinute);
+		cv.put(TABLE_WIFI, record.mWifiState);
+		cv.put(TABLE_MOBILE, record.mMobileState);
+		cv.put(TABLE_ACTIVE, record.mActive);
+		mSQLiteDatabase.insert(TABLE_NAME, TABLE_ID, cv);
+
+		// 更新界面显示
+		updateOneItemView(record);		
+	}
 
 	private void updateOneItemView(Record record) {
 		int i = record.mId;
@@ -246,15 +272,18 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		row.setMinimumHeight(48);
 		if (record.mActive) {
 			row.setBackgroundColor(Color.WHITE);
-
+			//row.setBackgroundResource(R.drawable.row_on);
 		} else {
 			row.setBackgroundColor(Color.LTGRAY);
+			//row.setBackgroundResource(R.drawable.row_off);
 		}
 		
-		CheckBox activeBox = new CheckBox(this);
+		ToggleButton activeBox = new ToggleButton(this);
 		activeBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + ENABLE_ID_OFFSET);
+		activeBox.setBackgroundResource(R.drawable.button_switch);
 		activeBox.setChecked(record.mActive);
 		activeBox.setOnClickListener(this);
+		activeBox.setText("");
 		
 		TextView timeView = new TextView(this);
 		timeView.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + TEXTVIEW_ID_OFFSET);
@@ -265,20 +294,23 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		timeView.setOnLongClickListener(this);
 		timeView.setOnTouchListener(this);
 
-		CheckBox wifiBox = new CheckBox(this);
+		ToggleButton wifiBox = new ToggleButton(this);
 		wifiBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + WIFI_ID_OFFSET);
+		wifiBox.setBackgroundResource(R.drawable.button_wifi);
 		wifiBox.setChecked(record.mWifiState);
 		wifiBox.setOnClickListener(this);
+		wifiBox.setText("");
 	
-		CheckBox mobileBox = new CheckBox(this);
+		ToggleButton mobileBox = new ToggleButton(this);
 		mobileBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + MOBILE_ID_OFFSET);
+		mobileBox.setBackgroundResource(R.drawable.button_mobile);
 		mobileBox.setChecked(record.mMobileState);
 		mobileBox.setOnClickListener(this);
+		mobileBox.setText("");
 		
 		TableRow.LayoutParams params = new TableRow.LayoutParams();
 		params.setMargins(0, 8, 0, 8);
 		params.gravity = Gravity.CENTER_VERTICAL;
-		
 		row.addView(activeBox, params);
 		row.addView(timeView, params);
 		row.addView(wifiBox, params);
@@ -322,7 +354,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		int id = v.getId();
 		int recordId = (id - VIEW_ID_BASE) / VIEW_ID_CYCLE;
 		int viewOffset = (id - VIEW_ID_BASE) % VIEW_ID_CYCLE;
-		CheckBox box = null;
+		ToggleButton box = null;
 		final Record tmpRecord = getRecordbyId(recordId);
 		switch (viewOffset) {
 		case TEXTVIEW_ID_OFFSET: // textview
@@ -350,33 +382,41 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 
 			break;
 		case WIFI_ID_OFFSET: // wifi checkbox
-			box = (CheckBox) v;
+			box = (ToggleButton) v;
+			box.setText("");
 			tmpRecord.mWifiState = box.isChecked();
 			if (tmpRecord.mActive) {
 				setSwitchRule(tmpRecord.mId);
 			}
 			break;
 		case MOBILE_ID_OFFSET: // mobile checkbox
-			box = (CheckBox) v;
+			box = (ToggleButton) v;
+			box.setText("");
 			tmpRecord.mMobileState = box.isChecked();
 			if (tmpRecord.mActive) {
 				setSwitchRule(tmpRecord.mId);
 			}
 			break;
 		case ENABLE_ID_OFFSET: // active checkbox
-			box = (CheckBox) v;
+			box = (ToggleButton) v;
+			box.setText("");
 			tmpRecord.mActive = box.isChecked();
 			View row = (View)v.getParent();
 			if (tmpRecord.mActive) {
+				//row.setBackgroundResource(R.drawable.row_on);
 				row.setBackgroundColor(Color.WHITE);
 				setSwitchRule(tmpRecord.mId);
+				int wifiInfoIdx = tmpRecord.mWifiState ? 0 : 1;
+				int mobileInfoIdx = tmpRecord.mMobileState ? 0 : 1;
 				Toast.makeText(
 						AutoSwitchActivity.this,
-						"该定时事件设置为" + String.format("%02d", tmpRecord.mHour) + ":" 
+						"设置" + String.format("%02d", tmpRecord.mHour) + ":" 
 						+ String.format("%02d", tmpRecord.mMinute) 
-						+ "启动", Toast.LENGTH_LONG).show();
+						+ " : " + AlarmReceiver.statesInfo[wifiInfoIdx] + "Wifi, "
+						+ AlarmReceiver.statesInfo[mobileInfoIdx] + "数据", Toast.LENGTH_LONG).show();
 			}
 			else {
+				//row.setBackgroundResource(R.drawable.row_off);
 				row.setBackgroundColor(Color.LTGRAY);
 				cancelSwitchRule(tmpRecord.mId);
 			}

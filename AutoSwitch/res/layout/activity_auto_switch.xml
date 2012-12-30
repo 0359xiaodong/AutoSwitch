@@ -2,49 +2,116 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" 
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#FFFFFFFF">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content" 
+            android:background="#FF000000">
 
-            <Button
-                android:id="@+id/button_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="返回" />
+		    <ImageButton 
+		       	android:id="@+id/button_back"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	           	android:src="@android:drawable/ic_menu_revert"
+	           	android:background="#00000000"
+		        />	
 
             <TextView
                 android:id="@+id/textView_about"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:layout_gravity="center"
-                android:text="关于" />
+                android:textSize="20dp"
+                android:textColor="#FFFFFFFF"
+                android:text="作者信息" />
 
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView_weibo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="新浪微博:@powervv" />
-
-        <TextView
-            android:id="@+id/textView_mail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="邮箱：powervv@gmail.com" />
         
-		<TextView
-            android:id="@+id/textView_weibo"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="程序：paul" />
-                
-		<TextView
-            android:id="@+id/textView_weibo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="设计：lera" />
+        	android:layout_height="24dip" />
+        
+        <TableLayout 
+            android:layout_width="wrap_content" 
+     		android:layout_height="wrap_content"
+     		android:stretchColumns="*" >
+     	
+     		<TableRow			         		      
+     		    android:layout_margin="2dip">
+      			<TextView 
+      			    android:text="新浪微博："  
+      			    android:textSize="18dp"
+      			    android:layout_margin="10dp"/>
+      			<TextView 
+      			    android:id="@+id/weibo"  
+      			    android:text=" @powervv"
+      			    android:textColor="#FF0000FF" 
+      			    android:textSize="18dp"
+      			    android:layout_margin="10dp"/>
+ 			</TableRow>
+ 			
+     		<View
+	        	android:layout_height="1dip"
+	        	android:layout_marginLeft="10dp"
+	        	android:layout_marginRight="10dp"
+	        	android:background="@drawable/line" /> 
+	        
+     		<TableRow 
+     		    android:layout_margin="2dip">
+      			<TextView 
+      			    android:text="邮箱："  
+      			    android:textSize="18dp"
+      			    android:layout_margin="10dp"/>
+      			<TextView 
+      			    android:id="@+id/email"
+      			    android:text=" powervv@gmail.com"
+      			    android:textColor="#FF0000FF" 
+      			    android:textSize="18dp"
+      			    android:layout_margin="10dp"/>
+ 			</TableRow>
+     		
+     		<View
+	        	android:layout_height="1dip"
+	        	android:layout_marginLeft="10dp"
+	        	android:layout_marginRight="10dp"
+	        	android:background="@drawable/line" /> 			
+ 			
+     		<TableRow 
+     		    android:layout_margin="2dip">
+      			<TextView 
+      			    android:text="程序："  
+      			    android:textSize="18dp"
+      			    android:layout_margin="10dp"/>
+      			<TextView 
+      			    android:id="@+id/weibo"  
+      			    android:text=" paul"
+      			    android:textColor="#FF0080FF"
+      			    android:textSize="18dp"
+      			    android:layout_margin="10dp"/>
+ 			</TableRow>
 
+     		<View
+	        	android:layout_height="1dip"
+	        	android:layout_marginLeft="10dp"
+	        	android:layout_marginRight="10dp"
+	        	android:background="@drawable/line" /> 
+	        	     					
+     		<TableRow 
+     		    android:layout_margin="2dip">
+      			<TextView 
+      			    android:text="设计："  
+      			    android:textSize="18dp"
+      			    android:layout_margin="10dp"/>
+      			<TextView 
+      			    android:id="@+id/weibo"  
+      			    android:text=" lera"
+      			    android:textColor="#FF0080FF"
+      			    android:textSize="18dp"
+      			    android:layout_margin="10dp"/>
+ 			</TableRow>
+		</TableLayout>
+	                
     </LinearLayout>

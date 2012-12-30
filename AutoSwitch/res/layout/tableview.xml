@@ -13,7 +13,7 @@
 	        android:id="@+id/tableRow1"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content" 
-	        android:background="#CC0B0B3B">
+	        android:background="@drawable/head">
 		    
 		    <TextView
 	            android:id="@+id/textView0"
@@ -25,33 +25,30 @@
 	           	android:layout_marginBottom="8dp"   	
 	           	android:textColor="#FFFFFFFF"
 	            android:textSize="18sp"   
-	            android:text="开关" />
+	            android:text="" />
 	        
-	        <TextView
+		   <TextView
 	            android:id="@+id/textView1"
 	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_column="2"    
+	            android:layout_height="wrap_content"  
+	            android:layout_column="1"  
 	           	android:layout_marginLeft="4dp"
 	           	android:layout_marginRight="4dp"
 	           	android:layout_marginTop="8dp"
 	           	android:layout_marginBottom="8dp"
+	           	android:gravity="center"   
 	            android:textColor="#FFFFFFFF"
-	            android:textSize="18sp"    	           
-	            android:text="WiFi" />
-	
-	        <TextView
-	            android:id="@+id/textView2"
+	            android:textSize="24sp"    	   
+	            android:text="设置" />
+		   
+		    <ImageButton 
+		       	android:id="@+id/imageButton"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	           	android:layout_marginLeft="4dp"
-	           	android:layout_marginRight="4dp"
-	           	android:layout_marginTop="8dp"
-	           	android:layout_marginBottom="8dp"
-	            android:textColor="#FFFFFFFF"
-	           	android:textSize="18sp"    
-	            android:text="数据" />
-	
+	            android:layout_column="3"  
+	           	android:src="@drawable/add_item_normal"
+	           	android:background="#00000000"
+		        />	
 	    </TableRow>
 	    
 	    <View
