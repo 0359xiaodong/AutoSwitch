@@ -10,6 +10,8 @@
 package com.powervv.autoswitch;
 
 import java.lang.reflect.Method;
+import java.util.Calendar;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +36,38 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 	public void onReceive(Context context, Intent intent) {
 		Bundle bundle = intent.getExtras();
+		int weekDay = bundle.getInt("weekday"); 
+		Calendar calendar = Calendar.getInstance();
+		long curTime = System.currentTimeMillis();
+		calendar.setTimeInMillis(curTime);
+		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+		Log.e(TAG, "dayOfWeek = " + dayOfWeek);
+		switch (dayOfWeek) {
+		case Calendar.MONDAY:
+		case Calendar.TUESDAY:
+		case Calendar.WEDNESDAY:
+		case Calendar.THURSDAY:
+		case Calendar.FRIDAY:
+			if (weekDay == AutoSwitchActivity.WORK_DAY ||
+					weekDay == AutoSwitchActivity.EVERY_DAY) {
+				break;
+			}
+			else {
+				return;
+			}
+		case Calendar.SATURDAY:
+		case Calendar.SUNDAY:
+			if (weekDay == AutoSwitchActivity.FREE_DAY ||
+					weekDay == AutoSwitchActivity.EVERY_DAY) {
+				break;
+			}
+			else {
+				return;
+			}
+		default:
+			return;
+		}
+				
 		boolean bWifiEnable = bundle.getBoolean("wifi");
 		boolean bMobileEnable = bundle.getBoolean("mobile");
 		int wifiInfoIdx = bWifiEnable ? 0 : 1;

@@ -24,8 +24,13 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -66,7 +71,7 @@ import net.youmi.android.appoffers.*;
  * 
  */
 public class AutoSwitchActivity extends Activity implements OnClickListener,
-		OnLongClickListener, OnTouchListener {
+		OnLongClickListener, OnTouchListener, OnItemSelectedListener {
 	private final static String TAG = "AutoSwitch";
 
 	/* View Id 编码: ViewId = VIEW_ID_BASE + _id * VIEW_ID_CYCLE + ID_OFFSET */
@@ -77,8 +82,17 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 	private final static int TEXTVIEW_ID_OFFSET = ENABLE_ID_OFFSET + 1;
 	private final static int WIFI_ID_OFFSET = TEXTVIEW_ID_OFFSET + 1;
 	private final static int MOBILE_ID_OFFSET = WIFI_ID_OFFSET + 1;
-	private final static int LINE_ID_OFFSET = MOBILE_ID_OFFSET + 1;
+	private final static int REPEAT_ID_OFFSET = MOBILE_ID_OFFSET + 1;
+	private final static int LINE_ID_OFFSET = REPEAT_ID_OFFSET + 1;
 
+	/* 周日期 */
+//	private final static String[] WEEKS = { "星期一", "星期二", "星期三", "星期四", "星期五",
+//			"星期六", "星期日" };
+	private final static String[] WEEKS = {"每日", "工作日", "双休日"};
+	final static int  EVERY_DAY = 0;
+	final static int WORK_DAY = 1;
+	final static int FREE_DAY = 2;
+	
 	/* 数据库名 */
 	private final static String DATABASE_NAME = "AutoSwitch.db";
 
@@ -86,7 +100,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 	private final static String TABLE_NAME = "EventTable";
 
 	/* 版本 */
-	private final static int DATABASE_VERSION = 1;
+	private final static int DATABASE_VERSION = 2;
 
 	/* 表中的字段 */
 	private final static String TABLE_ID = "_id";
@@ -95,14 +109,22 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 	private final static String TABLE_WIFI = "wifi";
 	private final static String TABLE_MOBILE = "mobile";
 	private final static String TABLE_ACTIVE = "active";
+	private final static String TABLE_REPEAT = "repeat";
 
 	/* 创建表的SQL语句 */
-	private final static String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME
+	private final static String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
 			+ " (" + TABLE_ID + " INTEGER PRIMARY KEY," + TABLE_HOUR
 			+ " INTERGER," + TABLE_MINUTE + " INTEGER," + TABLE_WIFI
 			+ " INTEGER," + TABLE_MOBILE + " INTEGER," + TABLE_ACTIVE
-			+ " INTEGER)";
+			+ " INTEGER," + TABLE_REPEAT + " INTEGER)";
 
+	/* 删除表的SQL语句 */
+	private final static String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+	
+	/* 添加表Colum的语句 */
+	private final static String ALTER_TABLE = "ALTER TABLE " + TABLE_NAME
+			+ " ADD COLUMN " + TABLE_REPEAT + " INTEGER";
+	
 	/* 数据库对象 */
 	private SQLiteDatabase mSQLiteDatabase = null;
 
@@ -117,6 +139,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		private boolean mWifiState;
 		private boolean mMobileState;
 		private boolean mActive;
+		private int mRepeat;
 		private Calendar mCalendar;
 
 		Record() {
@@ -124,13 +147,14 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		}
 
 		Record(int id, int hour, int minute, boolean wifiState,
-				boolean mobileState, boolean active, Calendar calendar) {
+				boolean mobileState, boolean active, int repeat, Calendar calendar) {
 			mId = id;
 			mHour = hour;
 			mMinute = minute;
 			mWifiState = wifiState;
 			mMobileState = mobileState;
 			mActive = active;
+			mRepeat = repeat;
 			mCalendar = calendar;
 		}
 	}
@@ -259,6 +283,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		cv.put(TABLE_WIFI, record.mWifiState);
 		cv.put(TABLE_MOBILE, record.mMobileState);
 		cv.put(TABLE_ACTIVE, record.mActive);
+		cv.put(TABLE_REPEAT, record.mRepeat);
 		mSQLiteDatabase.insert(TABLE_NAME, TABLE_ID, cv);
 
 		// 更新界面显示
@@ -308,11 +333,21 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		mobileBox.setOnClickListener(this);
 		mobileBox.setText("");
 		
+		Spinner spinner = new Spinner(this);
+		spinner.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + REPEAT_ID_OFFSET);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_item, WEEKS);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+		spinner.setSelection(record.mRepeat);
+		spinner.setOnItemSelectedListener(this);
+		
 		TableRow.LayoutParams params = new TableRow.LayoutParams();
 		params.setMargins(0, 8, 0, 8);
 		params.gravity = Gravity.CENTER_VERTICAL;
 		row.addView(activeBox, params);
 		row.addView(timeView, params);
+		row.addView(spinner, params);
 		row.addView(wifiBox, params);
 		row.addView(mobileBox, params);
 		mTable.addView(row);
@@ -410,9 +445,9 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 				int mobileInfoIdx = tmpRecord.mMobileState ? 0 : 1;
 				Toast.makeText(
 						AutoSwitchActivity.this,
-						"设置" + String.format("%02d", tmpRecord.mHour) + ":" 
+						"已设置" + String.format("%02d", tmpRecord.mHour) + ":" 
 						+ String.format("%02d", tmpRecord.mMinute) 
-						+ " : " + AlarmReceiver.statesInfo[wifiInfoIdx] + "Wifi, "
+						+ ": " + AlarmReceiver.statesInfo[wifiInfoIdx] + "Wifi, "
 						+ AlarmReceiver.statesInfo[mobileInfoIdx] + "数据", Toast.LENGTH_LONG).show();
 			}
 			else {
@@ -474,6 +509,24 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		return false;
 
 	}
+	
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		int id = arg0.getId();
+		int recordId = (id - VIEW_ID_BASE) / VIEW_ID_CYCLE;
+		final Record tmpRecord = getRecordbyId(recordId);
+		tmpRecord.mRepeat = arg2;
+		if (tmpRecord.mActive) {
+			setSwitchRule(tmpRecord.mId);
+		}
+		//设置显示当前选择的项
+		arg0.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		// TODO Auto-generated method stub
+	}
 
 	private Record getRecordbyId(int id) {
 		for (Record record : mRecords) {
@@ -513,6 +566,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		Intent intent = new Intent(AutoSwitchActivity.this, AlarmReceiver.class);
 		intent.putExtra("wifi", record.mWifiState);
 		intent.putExtra("mobile", record.mMobileState);
+		intent.putExtra("weekday", record.mRepeat);
 
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(
 				AutoSwitchActivity.this, i, intent,
@@ -561,6 +615,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			cv.put(TABLE_WIFI, record.mWifiState);
 			cv.put(TABLE_MOBILE, record.mMobileState);
 			cv.put(TABLE_ACTIVE, record.mActive);
+			cv.put(TABLE_REPEAT, record.mRepeat);
 			mSQLiteDatabase.update(TABLE_NAME, cv, TABLE_ID + "=" + record.mId,
 					null);
 		}
@@ -582,6 +637,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			boolean wifiStates[] = { false, true, false };
 			boolean mobileStates[] = { true, true, false };
 			boolean actives[] = { false, false, false };
+			int repeats[] = {AutoSwitchActivity.EVERY_DAY, AutoSwitchActivity.EVERY_DAY, AutoSwitchActivity.EVERY_DAY};
 			db.execSQL(CREATE_TABLE);
 			ContentValues cv = new ContentValues();
 			for (int i = 0; i < 3; ++i) {
@@ -591,6 +647,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 				cv.put(TABLE_WIFI, wifiStates[i]);
 				cv.put(TABLE_MOBILE, mobileStates[i]);
 				cv.put(TABLE_ACTIVE, actives[i]);
+				cv.put(TABLE_REPEAT, repeats[i]);
 				/* 插入数据 */
 				db.insert(TABLE_NAME, null, cv);
 			}
@@ -599,6 +656,11 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			// TODO 更改数据库版本的操作
+			Log.d(TAG, "Upgrade Database!");
+			if (AutoSwitchActivity.DATABASE_VERSION == newVersion
+					&& oldVersion < newVersion) {
+				db.execSQL(ALTER_TABLE);
+			}
 		}
 
 		@Override
@@ -607,9 +669,11 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			// TODO 每次成功打开数据库后首先被执行
 			/* 读取表中的数据 */
 			Log.d(TAG, "Open Database and read talbe!");
+			int version = db.getVersion();
 			mRecords.clear();
 			Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
 			cursor.moveToFirst();
+			
 			while (!cursor.isAfterLast()) {
 				Record record = new Record(cursor.getInt(0), // id
 						cursor.getInt(1), // hour
@@ -617,13 +681,15 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 						(cursor.getInt(3) == 0) ? false : true, // wifi
 						(cursor.getInt(4) == 0) ? false : true, // mobile
 						(cursor.getInt(5) == 0) ? false : true, // enable
+						(version == AutoSwitchActivity.DATABASE_VERSION) ? cursor.getInt(6) 
+								: AutoSwitchActivity.EVERY_DAY, // repeat
 						Calendar.getInstance()); // calendar
 				mRecords.add(record);
 				cursor.moveToNext();
 			}
 			cursor.close();
 		}
-
+		
 	}
 
 }

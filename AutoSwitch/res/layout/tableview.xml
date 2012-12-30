@@ -14,24 +14,13 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content" 
 	        android:background="@drawable/head">
-		    
-		    <TextView
-	            android:id="@+id/textView0"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"   
-	           	android:layout_marginLeft="4dp"
-	           	android:layout_marginRight="4dp"
-	           	android:layout_marginTop="8dp"
-	           	android:layout_marginBottom="8dp"   	
-	           	android:textColor="#FFFFFFFF"
-	            android:textSize="18sp"   
-	            android:text="" />
-	        
+		    	        
 		   <TextView
 	            android:id="@+id/textView1"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"  
 	            android:layout_column="1"  
+	            android:layout_span="3" 
 	           	android:layout_marginLeft="4dp"
 	           	android:layout_marginRight="4dp"
 	           	android:layout_marginTop="8dp"
@@ -45,7 +34,7 @@
 		       	android:id="@+id/imageButton"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	            android:layout_column="3"  
+	            android:layout_column="4"  
 	           	android:src="@drawable/add_item_normal"
 	           	android:background="#00000000"
 		        />	
