@@ -35,7 +35,7 @@
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:layout_column="4"  
-	           	android:src="@drawable/add_item_normal"
+	           	android:src="@drawable/button_add"
 	           	android:background="#00000000"
 		        />	
 	    </TableRow>

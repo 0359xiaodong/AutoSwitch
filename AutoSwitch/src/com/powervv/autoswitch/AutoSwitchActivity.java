@@ -174,19 +174,19 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		             }
 		         });
 		
-		 imgButton.setOnTouchListener(new View.OnTouchListener() {
-             @Override
-             public boolean onTouch(View v, MotionEvent event) {
-                 if(event.getAction()==MotionEvent.ACTION_DOWN){
-                	 ((ImageButton)v).setImageResource(R.drawable.add_item_sel);
-                 }
-                 else if(event.getAction()==MotionEvent.ACTION_UP ||
-                		 event.getAction()==MotionEvent.ACTION_CANCEL){
-                	 ((ImageButton)v).setImageResource(R.drawable.add_item_normal);
-                 }
-                 return false;
-             }
-         });
+//		 imgButton.setOnTouchListener(new View.OnTouchListener() {
+//             @Override
+//             public boolean onTouch(View v, MotionEvent event) {
+//                 if(event.getAction()==MotionEvent.ACTION_DOWN){
+//                	 ((ImageButton)v).setImageResource(R.drawable.add_item_sel);
+//                 }
+//                 else if(event.getAction()==MotionEvent.ACTION_UP ||
+//                		 event.getAction()==MotionEvent.ACTION_CANCEL){
+//                	 ((ImageButton)v).setImageResource(R.drawable.add_item_normal);
+//                 }
+//                 return false;
+//             }
+//         });
 		 
 		mRecords = new ArrayList<Record>();
 		// 读取配置文件，初始化。
