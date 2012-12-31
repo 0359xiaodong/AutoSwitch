@@ -178,11 +178,11 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
              @Override
              public boolean onTouch(View v, MotionEvent event) {
                  if(event.getAction()==MotionEvent.ACTION_DOWN){
-                	 ((ImageButton)v).setImageDrawable(getResources().getDrawable(R.drawable.add_item_sel));
+                	 ((ImageButton)v).setImageResource(R.drawable.add_item_sel);
                  }
                  else if(event.getAction()==MotionEvent.ACTION_UP ||
                 		 event.getAction()==MotionEvent.ACTION_CANCEL){
-                	 ((ImageButton)v).setImageDrawable(getResources().getDrawable(R.drawable.add_item_normal));
+                	 ((ImageButton)v).setImageResource(R.drawable.add_item_normal);
                  }
                  return false;
              }
@@ -239,6 +239,8 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			Intent intent = new Intent();
 			intent.setClass(AutoSwitchActivity.this, AboutActivity.class);
 			startActivity(intent);
+			save();
+			mSQLiteDatabase.close();
 			AutoSwitchActivity.this.finish();
 			break;
 		}
