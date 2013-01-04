@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.powervv.autoswitch"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="2"
+    android:versionName="1.1" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -38,7 +38,7 @@
             android:configChanges="keyboard|keyboardHidden|orientation"
 			android:name="net.youmi.android.appoffers.YoumiOffersActivity">
 		</activity>
-		<meta-data android:name="YOUMI_CHANNEL" android:value="10020"></meta-data> 
+		<meta-data android:name="YOUMI_CHANNEL" android:value="10030"></meta-data> 
     </application>
 
 </manifest>

@@ -173,21 +173,7 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		     			addOneItem();
 		             }
 		         });
-		
-//		 imgButton.setOnTouchListener(new View.OnTouchListener() {
-//             @Override
-//             public boolean onTouch(View v, MotionEvent event) {
-//                 if(event.getAction()==MotionEvent.ACTION_DOWN){
-//                	 ((ImageButton)v).setImageResource(R.drawable.add_item_sel);
-//                 }
-//                 else if(event.getAction()==MotionEvent.ACTION_UP ||
-//                		 event.getAction()==MotionEvent.ACTION_CANCEL){
-//                	 ((ImageButton)v).setImageResource(R.drawable.add_item_normal);
-//                 }
-//                 return false;
-//             }
-//         });
-		 
+			 
 		mRecords = new ArrayList<Record>();
 		// 读取配置文件，初始化。
 		load();
@@ -252,18 +238,18 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 	
 	private void addOneItem() {
 		// 无积分时，最多支持三个定时任务
-//		if (mRecords.size() >=3 && YoumiPointsManager.queryPoints(this) == 0) {
-//			Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
-//					.setMessage("免费下载任一推荐应用，即可无限制添加定时任务。是否前往？")
-//					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//						@Override
-//						public void onClick(DialogInterface dialog, int which) {
-//							YoumiOffersManager.showOffers(AutoSwitchActivity.this, YoumiOffersManager.TYPE_REWARD_OFFERS);
-//						}
-//					}).setNegativeButton("退出", null).create();
-//			dialog.show();											
-//			return false;
-//		}
+		if (mRecords.size() >=3 && YoumiPointsManager.queryPoints(this) == 0) {
+			Dialog dialog = new AlertDialog.Builder(this).setTitle("提示")
+					.setMessage("免费下载任一推荐应用，即可无限制添加定时任务。是否前往？")
+					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							YoumiOffersManager.showOffers(AutoSwitchActivity.this, YoumiOffersManager.TYPE_REWARD_OFFERS);
+						}
+					}).setNegativeButton("退出", null).create();
+			dialog.show();											
+			return;
+		}
 					
 		// 添加新记录到数组
 		Record record = new Record();
@@ -311,6 +297,8 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		activeBox.setChecked(record.mActive);
 		activeBox.setOnClickListener(this);
 		activeBox.setText("");
+		activeBox.setTextOn("");
+		activeBox.setTextOff("");
 		
 		TextView timeView = new TextView(this);
 		timeView.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + TEXTVIEW_ID_OFFSET);
@@ -327,6 +315,8 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		wifiBox.setChecked(record.mWifiState);
 		wifiBox.setOnClickListener(this);
 		wifiBox.setText("");
+		wifiBox.setTextOn("");
+		wifiBox.setTextOff("");
 	
 		ToggleButton mobileBox = new ToggleButton(this);
 		mobileBox.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + MOBILE_ID_OFFSET);
@@ -334,6 +324,8 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 		mobileBox.setChecked(record.mMobileState);
 		mobileBox.setOnClickListener(this);
 		mobileBox.setText("");
+		mobileBox.setTextOn("");
+		mobileBox.setTextOff("");		
 		
 		Spinner spinner = new Spinner(this);
 		spinner.setId(VIEW_ID_BASE + i * VIEW_ID_CYCLE + REPEAT_ID_OFFSET);
@@ -420,7 +412,6 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			break;
 		case WIFI_ID_OFFSET: // wifi checkbox
 			box = (ToggleButton) v;
-			box.setText("");
 			tmpRecord.mWifiState = box.isChecked();
 			if (tmpRecord.mActive) {
 				setSwitchRule(tmpRecord.mId);
@@ -428,7 +419,6 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			break;
 		case MOBILE_ID_OFFSET: // mobile checkbox
 			box = (ToggleButton) v;
-			box.setText("");
 			tmpRecord.mMobileState = box.isChecked();
 			if (tmpRecord.mActive) {
 				setSwitchRule(tmpRecord.mId);
@@ -436,7 +426,6 @@ public class AutoSwitchActivity extends Activity implements OnClickListener,
 			break;
 		case ENABLE_ID_OFFSET: // active checkbox
 			box = (ToggleButton) v;
-			box.setText("");
 			tmpRecord.mActive = box.isChecked();
 			View row = (View)v.getParent();
 			if (tmpRecord.mActive) {
